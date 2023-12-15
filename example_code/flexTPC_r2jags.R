@@ -68,7 +68,6 @@ cat("
 sink()
 
 ##### Set MCMC Settings common to all traits
-# Number of posterior dist elements = [(ni - nb) / nt ] * nc = [ (25000 - 5000) / 8 ] * 3 = 7500
 ni <- 300000 # number of iterations in each chain
 nb <- 50000 # number of 'burn in' iterations to discard
 nt <- 8 # thinning rate - jags saves every nt iterations in each chain
