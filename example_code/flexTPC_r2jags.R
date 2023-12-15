@@ -32,12 +32,13 @@ cat("
     Tmin ~ dnorm(10, 1/5^2) # Minimum temperature (Celsius). Approx. prior 95% CI: [0, 20] 
     Tmax ~ dnorm(35, 1/5^2) # Maximum temperature (Celsius). Approx. prior 95% CI: [25, 45]
     rmax ~ dunif(0, 1)  # Maximum value of trait (i.e. trait value at Topt). Current prior assumes upper limit
-                        # of 1 /day for mosquito development rate since mosquito larvae will not develop to
-                        # adults faster than in a day.
+                        # for maximum hatching rate of 1 /day since eggs will not hatch faster than in a day.
+                        # Can be changed to e.g. a gamma prior if there is previous information for the trait
+                        # from related species.
     alpha ~ dunif(0, 1) # Relative position of Topt relative to Tmin and Tmax.
                         # Uniform prior gives equal prior weight to curves of any skewness.
                         # Can also use e.g. beta prior to give more prior probability to left-skewed, symmetric
-                        # or right-skewed curves depending on parameters of prior.
+                        # or right-skewed curves depending on parameters of prior if it makes sense for the trait.
     logs ~ dnorm(0, 1 / 0.5^2) # Prior on base 10 logarithm of shape parameter. 
                                # Approx. prior logs 95% CI: [-1, 1] -> Approx s 95% CI: [0.1, 10] 
                                # This should work for most 'normal looking' TPCs, but can be relaxed
