@@ -31,10 +31,8 @@ cat("
     ## Priors (please make sure to change these priors so they make sense for your system!)
     Tmin ~ dnorm(10, 1/5^2) # Minimum temperature (Celsius). Approx. prior 95% CI: [0, 20] 
     Tmax ~ dnorm(35, 1/5^2) # Maximum temperature (Celsius). Approx. prior 95% CI: [25, 45]
-    rmax ~ dunif(0, 1)  # Maximum value of trait (i.e. trait value at Topt). Current prior assumes upper limit
-                        # for maximum hatching rate of 1 /day since eggs will not hatch faster than in a day.
-                        # Can be changed to e.g. a gamma prior if there is previous information for the trait
-                        # from related species.
+    rmax ~ dunif(0, 1)  # Maximum value of trait (i.e. trait value at Topt). Current prior assumes hatching
+                        # rate (inverse of average time to hatch) cannot be faster than 1 / day.
     alpha ~ dunif(0, 1) # Relative position of Topt relative to Tmin and Tmax.
                         # Uniform prior gives equal prior weight to curves of any skewness.
                         # Can also use e.g. beta prior to give more prior probability to left-skewed, symmetric
@@ -67,7 +65,7 @@ cat("
     ",fill=TRUE)
 sink()
 
-##### Set MCMC Settings common to all traits
+##### Set MCMC Settings
 ni <- 300000 # number of iterations in each chain
 nb <- 50000 # number of 'burn in' iterations to discard
 nt <- 8 # thinning rate - jags saves every nt iterations in each chain
