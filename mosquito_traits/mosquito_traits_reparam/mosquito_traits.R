@@ -4,16 +4,16 @@ library('MCMCvis')
 library('scales')
 
 set.seed(42)
-setwd('/Users/cruzloya/git/flexTPC/mosquito_traits_reparam')
+setwd('/Users/cruzloya/git/flexTPC/mosquito_traits/mosquito_traits_reparam')
 
 lit.col = "purple"
 flex.col = "darkgreen"
 
 # FlexTPC model for thermal responses.
-flexTPC <- function(T, Tmin, Tmax, rmax, alpha, beta) {
+flexTPC <- function(T, Tmin, Tmax, rmax, alpha, beta_t) {
   result <- rep(0, length(T))
   Tidx = (T > Tmin) & (T < Tmax)
-  s = alpha * (1 - alpha) / beta^2
+  s = alpha * (1 - alpha) / beta_t^2
   result[Tidx] <- rmax * exp(s * (alpha * log( (T[Tidx] - Tmin) / alpha) 
                                   +  (1 - alpha) * log( (Tmax - T[Tidx]) / (1 - alpha))
                                   - log(Tmax - Tmin)) ) 
@@ -128,12 +128,12 @@ cat("
     Tmax ~ dnorm(35, 1/5^2)
     rmax ~ dunif(0, 1)
     alpha ~ dunif(0, 1)
-    beta ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
+    beta_t ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
     
     
     # Derived quantities
-    s <- alpha * (1 - alpha) / beta^2
-    Topt <- alpha * Tmax + beta * Tmin
+    s <- alpha * (1 - alpha) / beta_t^2
+    Topt <- alpha * Tmax + (1 - alpha) * Tmin
 
     ## Likelihood
     for(i in 1:N.obs){
@@ -188,12 +188,12 @@ inits<-function(){list(
   Tmax = runif(1, min=35, max=40),
   rmax = runif(1, min=0, max=1),
   alpha = runif(1, min=0.2, max=0.8),
-  beta = runif(1, min=0.05, max=0.3))}
+  beta_t = runif(1, min=0.05, max=0.3))}
 
 
 inits
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta_t", "s", "Topt")
 
 
 
@@ -232,10 +232,10 @@ inits<-function(){list(
   Tmax = runif(1, min=35, max=40),
   rmax = runif(1, min=0, max=1),
   alpha = runif(1, min=0.2, max=0.8),
-  beta = runif(1, min=0.1, max=0.5))}
+  beta_t = runif(1, min=0.1, max=0.5))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta_t", "s", "Topt")
 
 flex.EV.Cqui.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, 
                          model.file="flex_EV_binom.txt", n.thin=nt, n.chains=nc, 
@@ -280,7 +280,7 @@ polygon(c(temps, rev(temps)), c(CI.EV.Cpip.quad[1,], rev(CI.EV.Cpip.quad[2,])),
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.EV.Cpip.flex <- MCMCchains(flex.EV.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.EV.Cpip.flex <- MCMCchains(flex.EV.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.EV.Cpip.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.EV.Cpip.flex <- apply(curves, 1, mean)
@@ -313,7 +313,7 @@ polygon(c(temps, rev(temps)), c(CI.EV.Cqui.briere[1,], rev(CI.EV.Cqui.briere[2,]
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.EV.Cqui.flex <- MCMCchains(flex.EV.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.EV.Cqui.flex <- MCMCchains(flex.EV.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.EV.Cqui.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.EV.Cqui.flex <- apply(curves, 1, mean)
@@ -367,12 +367,12 @@ cat("
     Tmax ~ dnorm(35, 1/5^2)
     rmax ~ dunif(0, 1)
     alpha ~ dunif(0, 1)
-    beta ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
+    beta_t ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
     sigma ~ dunif(0, 1)
     
     # Derived quantities
-    s <- alpha * (1 - alpha) / beta^2
-    Topt <- alpha * Tmax + beta * Tmin
+    s <- alpha * (1 - alpha) / beta_t^2
+    Topt <- alpha * Tmax + (1 - alpha) * Tmin
 
     ## Likelihood
     for(i in 1:N.obs){
@@ -423,10 +423,10 @@ inits<-function(){list(
   Tmax = runif(1, min=35, max=40),
   rmax = runif(1, min=0, max=1),
   alpha = runif(1, min=0.2, max=0.8),
-  beta = runif(1, min=0.1, max=0.5))}
+  beta_t = runif(1, min=0.1, max=0.5))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "sigma")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta_t", "s", "Topt", "sigma")
 
 jag.data<-list(y=y.Cpip, temp = temp.Cpip, N.obs=N.obs.Cpip)
 flex.pLA.Cpip.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, 
@@ -462,10 +462,10 @@ inits<-function(){list(
   Tmax = runif(1, min=35, max=40),
   rmax = runif(1, min=0, max=1),
   alpha = runif(1, min=0.2, max=0.8),
-  beta = runif(1, min=0.1, max=0.5))}
+  beta_t = runif(1, min=0.1, max=0.5))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "sigma")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta_t", "s", "Topt", "sigma")
 
 jag.data<-list(y=y.Cqui, temp = temp.Cqui, N.obs=N.obs.Cqui)
 
@@ -495,7 +495,7 @@ polygon(c(temps, rev(temps)), c(CI.pLA.Cpip.quad[1,], rev(CI.pLA.Cpip.quad[2,]))
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.pLA.Cpip.flex <- MCMCchains(flex.pLA.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.pLA.Cpip.flex <- MCMCchains(flex.pLA.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.pLA.Cpip.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.pLA.Cpip.flex <- apply(curves, 1, mean)
@@ -525,7 +525,7 @@ polygon(c(temps, rev(temps)), c(CI.pLA.Cqui.quad[1,], rev(CI.pLA.Cqui.quad[2,]))
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.pLA.Cqui.flex <- MCMCchains(flex.pLA.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.pLA.Cqui.flex <- MCMCchains(flex.pLA.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.pLA.Cqui.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.pLA.Cqui.flex <- apply(curves, 1, mean)
@@ -577,12 +577,12 @@ cat("
     rmax ~ dunif(0, 1)
     alpha ~ dunif(0, 1)
     
-    beta ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
+    beta_t ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
     sigma ~ dunif(0, 1)
     
     # Derived quantities
-    s <- alpha * (1 - alpha) / beta^2
-    Topt <- alpha * Tmax + beta * Tmin
+    s <- alpha * (1 - alpha) / beta_t^2
+    Topt <- alpha * Tmax + (1 - alpha) * Tmin
 
     ## Likelihood
     for(i in 1:N.obs){
@@ -633,10 +633,10 @@ inits<-function(){list(
   Tmax = runif(1, min=35, max=40),
   rmax = runif(1, min=0, max=1),
   alpha = runif(1, min=0.2, max=0.8),
-  beta = runif(1, min=0.1, max=0.5))}
+  beta_t = runif(1, min=0.1, max=0.5))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "sigma")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta_t", "s", "Topt", "sigma")
 
 jag.data<-list(y=y.Cpip, temp = temp.Cpip, N.obs=N.obs.Cpip)
 flex.MDR.Cpip.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, 
@@ -672,10 +672,10 @@ inits<-function(){list(
   Tmax = runif(1, min=35, max=40),
   rmax = runif(1, min=0, max=1),
   alpha = runif(1, min=0.2, max=0.8),
-  beta = runif(1, min=0.1, max=0.5))}
+  beta_t = runif(1, min=0.1, max=0.5))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "sigma")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta_t", "s", "Topt", "sigma")
 
 jag.data<-list(y=y.Cqui, temp = temp.Cqui, N.obs=N.obs.Cqui)
 
@@ -685,7 +685,7 @@ flex.MDR.Cqui.out <- jags(data=jag.data, inits=inits, parameters.to.save=paramet
 flex.MDR.Cqui.out
 mcmcplot(flex.MDR.Cqui.out)
 
-##### lf - Plot curves
+##### MDR - Plot curves
 
 plot(data.MDR.Cpip$T, 1 / data.MDR.Cpip$trait, pch=20, xlim=c(0, 45),
      ylim=c(0, 0.3), xlab="Temperature [°C]", ylab="Mosquito development rate [1 / day]", 
@@ -709,7 +709,7 @@ polygon(c(temps, rev(temps)), c(CI.MDR.Cpip.briere[1,],
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.MDR.Cpip.flex <- MCMCchains(flex.MDR.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.MDR.Cpip.flex <- MCMCchains(flex.MDR.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.MDR.Cpip.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.MDR.Cpip.flex <- apply(curves, 1, mean)
@@ -740,7 +740,7 @@ polygon(c(temps, rev(temps)), c(CI.MDR.Cqui.briere[1,], rev(CI.MDR.Cqui.briere[2
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.MDR.Cqui.flex <- MCMCchains(flex.MDR.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.MDR.Cqui.flex <- MCMCchains(flex.MDR.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.MDR.Cqui.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.MDR.Cqui.flex <- apply(curves, 1, mean)
@@ -792,12 +792,12 @@ cat("
     Tmax ~ dnorm(35, 1/5^2)
     rmax ~ dunif(0, 150)
     alpha ~ dunif(0, 1)
-    beta ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
+    beta_t ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
     sigma ~ dunif(0, 100)
     
     # Derived quantities
-    s <- alpha * (1 - alpha) / beta^2
-    Topt <- alpha * Tmax + beta * Tmin
+    s <- alpha * (1 - alpha) / beta_t^2
+    Topt <- alpha * Tmax + (1 - alpha) * Tmin
 
     ## Likelihood
     for(i in 1:N.obs){
@@ -847,10 +847,10 @@ inits<-function(){list(
   Tmax = runif(1, min=35, max=40),
   rmax = runif(1, min=0, max=150),
   alpha = runif(1, min=0.2, max=0.8),
-  beta = runif(1, min=0.1, max=0.5))}
+  beta_t = runif(1, min=0.1, max=0.5))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "sigma")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta_t", "s", "Topt", "sigma")
 
 jag.data<-list(y=y.Cpip, temp = temp.Cpip, N.obs=N.obs.Cpip)
 flex.lf.Cpip.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, 
@@ -886,10 +886,10 @@ inits<-function(){list(
   Tmax = runif(1, min=35, max=40),
   rmax = runif(1, min=0, max=150),
   alpha = runif(1, min=0.2, max=0.8),
-  beta = runif(1, min=0.1, max=0.5))}
+  beta_t = runif(1, min=0.1, max=0.5))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "sigma")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta_t", "s", "Topt", "sigma")
 
 jag.data<-list(y=y.Cqui, temp = temp.Cqui, N.obs=N.obs.Cqui)
 flex.lf.Cqui.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, 
@@ -922,7 +922,7 @@ polygon(c(temps, rev(temps)), c(CI.lf.Cpip.lin[1,], rev(CI.lf.Cpip.lin[2,])),
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.lf.Cpip.flex <- MCMCchains(flex.lf.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.lf.Cpip.flex <- MCMCchains(flex.lf.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.lf.Cpip.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.lf.Cpip.flex <- apply(curves, 1, mean)
@@ -952,7 +952,7 @@ polygon(c(temps, rev(temps)), c(CI.lf.Cqui.lin[1,], rev(CI.lf.Cqui.lin[2,])),
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.lf.Cqui.flex <- MCMCchains(flex.lf.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.lf.Cqui.flex <- MCMCchains(flex.lf.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.lf.Cqui.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.lf.Cqui.flex <- apply(curves, 1, mean)
@@ -1021,7 +1021,7 @@ polygon(c(temps, rev(temps)), c(CI.EV.Cpip.quad[1,], rev(CI.EV.Cpip.quad[2,])),
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.EV.Cpip.flex <- MCMCchains(flex.EV.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.EV.Cpip.flex <- MCMCchains(flex.EV.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.EV.Cpip.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.EV.Cpip.flex <- apply(curves, 1, mean)
@@ -1058,7 +1058,7 @@ polygon(c(temps, rev(temps)), c(CI.EV.Cqui.briere[1,], rev(CI.EV.Cqui.briere[2,]
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.EV.Cqui.flex <- MCMCchains(flex.EV.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.EV.Cqui.flex <- MCMCchains(flex.EV.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.EV.Cqui.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.EV.Cqui.flex <- apply(curves, 1, mean)
@@ -1096,7 +1096,7 @@ polygon(c(temps, rev(temps)), c(CI.pLA.Cpip.quad[1,], rev(CI.pLA.Cpip.quad[2,]))
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.pLA.Cpip.flex <- MCMCchains(flex.pLA.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.pLA.Cpip.flex <- MCMCchains(flex.pLA.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.pLA.Cpip.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.pLA.Cpip.flex <- apply(curves, 1, mean)
@@ -1125,7 +1125,7 @@ polygon(c(temps, rev(temps)), c(CI.pLA.Cqui.quad[1,], rev(CI.pLA.Cqui.quad[2,]))
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.pLA.Cqui.flex <- MCMCchains(flex.pLA.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.pLA.Cqui.flex <- MCMCchains(flex.pLA.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.pLA.Cqui.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.pLA.Cqui.flex <- apply(curves, 1, mean)
@@ -1166,7 +1166,7 @@ polygon(c(temps, rev(temps)), c(CI.MDR.Cpip.briere[1,],
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.MDR.Cpip.flex <- MCMCchains(flex.MDR.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.MDR.Cpip.flex <- MCMCchains(flex.MDR.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.MDR.Cpip.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.MDR.Cpip.flex <- apply(curves, 1, mean)
@@ -1197,7 +1197,7 @@ polygon(c(temps, rev(temps)), c(CI.MDR.Cqui.briere[1,], rev(CI.MDR.Cqui.briere[2
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.MDR.Cqui.flex <- MCMCchains(flex.MDR.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.MDR.Cqui.flex <- MCMCchains(flex.MDR.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.MDR.Cqui.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.MDR.Cqui.flex <- apply(curves, 1, mean)
@@ -1236,7 +1236,7 @@ polygon(c(temps, rev(temps)), c(CI.lf.Cpip.lin[1,], rev(CI.lf.Cpip.lin[2,])),
         col=alpha(lit.col, 0.2), lty=0)
 
 # Plot flexTPC model curves
-chains.lf.Cpip.flex <- MCMCchains(flex.lf.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.lf.Cpip.flex <- MCMCchains(flex.lf.Cpip.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.lf.Cpip.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.lf.Cpip.flex <- apply(curves, 1, mean)
@@ -1265,8 +1265,13 @@ lines(temps, meancurve.lf.Cqui.lin, col=lit.col, lwd=1.5)
 polygon(c(temps, rev(temps)), c(CI.lf.Cqui.lin[1,], rev(CI.lf.Cqui.lin[2,])), 
         col=alpha(lit.col, 0.2), lty=0)
 
+legend(15, 140, legend = c("literature", "flexTPC"),
+       pch = c(NA, NA), lty = c(1, 1),
+       col = c("purple", "darkgreen"), cex=1.0)
+
+
 # Plot flexTPC model curves
-chains.lf.Cqui.flex <- MCMCchains(flex.lf.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
+chains.lf.Cqui.flex <- MCMCchains(flex.lf.Cqui.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta_t"))
 curves <- apply(chains.lf.Cqui.flex, 1, 
                 function(x) flexTPC(temps, x[1], x[2], x[3], x[4], x[5]))
 meancurve.lf.Cqui.flex <- apply(curves, 1, mean)
