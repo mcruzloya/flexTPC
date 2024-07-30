@@ -10,15 +10,14 @@ library('MCMCvis')
 library('scales')
 
 set.seed(42)
-setwd('/Users/cruzloya/git/flexTPC/example_code/')
 
 # FlexTPC model for thermal performance curves.
-flexTPC <- function(T, Tmin, Tmax, rmax, alpha, s) {
-  beta <- 1 - alpha
+flexTPC <- function(T, Tmin, Tmax, rmax, alpha, beta) {
+  s <- alpha * (1 - alpha) / beta^2
   result <- rep(0, length(T))
   Tidx = (T > Tmin) & (T < Tmax)
   result[Tidx] <- rmax * exp(s * (alpha * log( (T[Tidx] - Tmin) / alpha) 
-                                  + beta * log( (Tmax - T[Tidx]) / beta)
+                                  + (1 - alpha) * log( (Tmax - T[Tidx]) / (1 - alpha))
                                   - log(Tmax - Tmin)) ) 
   return(result)
 }
@@ -37,25 +36,24 @@ cat("
                         # Uniform prior gives equal prior weight to curves of any skewness.
                         # Can also use e.g. beta prior to give more prior probability to left-skewed, symmetric
                         # or right-skewed curves depending on parameters of prior if it makes sense for the trait.
-    logs ~ dnorm(0, 1 / 0.5^2) # Prior on base 10 logarithm of shape parameter. 
-                               # Approx. prior logs 95% CI: [-1, 1] -> Approx s 95% CI: [0.1, 10] 
-                               # This should work for most 'normal looking' TPCs, but can be relaxed
-                               # to e.g. dnorm(0, 1) to allow TPCs that are very skinny or that are
-                               # very flat in a wide temperature range.
+    beta ~ dgamma(0.3^2/0.3^2, 0.3/0.3^2) # Gamma prior for upper thermal breath. Values
+                                          # around 0.2-0.4 correspond to common TPC shapes
+                                          # as are described by e.g. the Briere1 or quadratic
+                                          # models. 95% prior CI: [0.008, 1.107]
     sigma ~ dunif(0, 1) # Standard deviation for the data points around the fitted TPC. 
                         # Upper limit of 1 for this problem, but please change this
                         # to make sense for the data you're fitting.
     
     # Derived quantities
-    beta <- 1 - alpha
-    Topt <- alpha * Tmax + beta * Tmin
-    s <- 10^logs
-    
+    s <- alpha * (1 - alpha) / beta^2
+    Topt <- alpha * Tmax + (1 - alpha) * Tmin
+    B <- beta * (Tmax - Tmin)
+
     ## Likelihood
     for(i in 1:N.obs){
       # flexTPC model.
       mu[i] <- (Tmax > temp[i]) * (Tmin < temp[i]) * rmax * exp(s * (alpha * log( max(temp[i] - Tmin, 10^-20) / alpha) 
-                            + beta * log( max(Tmax - temp[i], 10^-20) / beta)
+                            + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))
                             - log(Tmax - Tmin)) ) 
       # Normal likelihood with constant variance.
       y[i] ~ dnorm(mu[i], 1 / sigma^2)
@@ -91,11 +89,11 @@ inits<-function(){list(
   Tmax = runif(1, min=30, max=40),
   rmax = runif(1, min=0, max=0.5),
   alpha = runif(1, min=0, max=1),
-  logs = rnorm(1, 0, 0.5),
+  beta = runif(1, 0.1, 0.5),
   sigma = runif(1, min=0, max=0.2))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "logs", "s", "Topt", "sigma")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "B", "sigma")
 
 jags.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, 
                           model.file="flexTPC_norm.txt", n.thin=nt, n.chains=nc, 
@@ -114,7 +112,7 @@ plot(temp, y, pch=20, xlab="Temperature [ºC]", ylab='Developmental rate [1 /day
      main="eggs")
 
 # Extract MCMC chains for flexTPC parameters.
-chains <- MCMCchains(jags.out, params=c("Tmin", "Tmax", "rmax", "alpha", "s"))
+chains <- MCMCchains(jags.out, params=c("Tmin", "Tmax", "rmax", "alpha", "beta"))
 
 # Calculate TPCs for each posterior sample.
 temps <- seq(0, 40, 0.1)
