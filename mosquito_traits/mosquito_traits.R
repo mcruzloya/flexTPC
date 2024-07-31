@@ -4,7 +4,6 @@ library('MCMCvis')
 library('scales')
 
 set.seed(42)
-setwd('/Users/cruzloya/git/flexTPC/mosquito_traits')
 
 lit.col = "purple"
 flex.col = "darkgreen"
@@ -63,9 +62,6 @@ nt <- 8 # thinning rate - jags saves every nt iterations in each chain
 nc <- 4 # number of chains
 
 ## Egg viability
-#data.EV <- read.csv("./TraitData_EV.csv")
-#data.EV.Cpip <- subset(data.EV, data.EV$host.code == "Cpip")
-#data.EV.Cqui <- subset(data.EV, data.EV$host.code == "Cqui")
 data.EV.Cpip <- read.csv("EV_Cpip.csv")
 data.EV.Cqui <- read.csv("EV_Cqui.csv")
 
