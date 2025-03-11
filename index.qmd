@@ -1,0 +1,132 @@
+---
+title: "A flexible model for thermal performance curves"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+```
+
+FlexTPC is a mathematical model for thermal performance curves that aims to be both flexible and interpretable. We show an interactive visualization of flexTPC and its parameters below:
+
+```{ojs}
+// | echo: false
+viewof T_min = Inputs.range(
+  [-5, 20], 
+  {value: 10, step: 0.2, label: "Tmin:"}
+)
+viewof T_max = Inputs.range(
+  [30, 50], 
+  {value: 35, step: 0.2, label: "Tmax:"}
+)
+
+viewof r_max = Inputs.range(
+  [0, 1.2], 
+  {value: 1, step: 0.1, label: "rmax:"}
+)
+
+viewof alpha = Inputs.range(
+  [0, 1], 
+  {value: 0.8, step: 0.02, label: "alpha:"}
+)
+
+viewof beta = Inputs.range(
+  [0, 1], 
+  {value: 0.3, step: 0.02, label: "beta:"}
+)
+```
+
+```{ojs}
+// | echo: false
+
+function incrementalArray(start, end, step) {
+    var arr = [];
+    // convert count to an integer to avoid rounding errors
+    var count = +((end - start) / step).toFixed();
+    for (var j = 0; j <= count; j++) {
+        var i = start + j * step;
+        arr.push(i);
+    }
+    return arr;
+}
+
+function flexTPC(x, T_min, T_max, r_max, alpha, beta) {
+  if (x < T_min) {
+  return 0.0
+  }
+  if (x > T_max) {
+  return 0.0
+  }
+  return r_max * Math.exp((alpha * (1.0 - alpha) / beta**2) * (alpha *    Math.log( (x - T_min) / alpha)  + 
+      (1.0 - alpha) * Math.log( (T_max - x) / (1.0 - alpha)) -
+      Math.log(T_max - T_min)))
+}
+
+xvals = incrementalArray(-5, 50, 0.1)
+yvals = xvals.map((x) => flexTPC(x, T_min, T_max, r_max, alpha, beta))
+zip = (a, b) => a.map((k, i) => [k, b[i]]);
+data = zip(xvals, yvals)
+
+Plot.plot({
+  width: 600,
+  height: 400,
+  y: { domain: [-0.01, 1.25] },
+  marks: [
+    Plot.line(
+      data,
+      {
+        strokeWidth: 3,
+        stroke: "steelblue",
+        fontSize: 14
+      }
+    ),
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.axisX({label: "Temperature [°C]", fontSize: 14, marginBottom: 40}),
+    Plot.axisY({label: "trait performance", fontSize: 14, x: 0 })
+  ]
+})
+```
+
+FlexTPC is parametrized in terms of biologically interpretable quantities:
+
+-   $T_{\min}$ is the minimum temperature,
+-   $T_{\max}$ the maximum temperature,
+-   $r_{\max}$ the maximum trait value/performance of the TPC,
+-   $\alpha \in [0,1]$ determines where the optimal temperature $T_{\mathrm{opt}}$ is relative to $T_{\min}$ and $T_{\max}$ through the equation $$
+    T_{\mathrm{opt}} = \alpha T_{\max} + (1 - \alpha) T_{\min}
+    $$ (where, for example, $\alpha = 0$ corresponds to $T_{\mathrm{opt}} = T_{\min}$, $\alpha = 1$ corresponds to $T_{\mathrm{opt}} = T_{\max}$ and $\alpha = 1/2$ corresponds to a symmetric TPC where $T_{\mathrm{opt}} = (T_{\min} + T_{\max}) / 2$), and
+-   $\beta > 0$ determines the breadth of the TPC near its peak.
+
+## R code
+
+For convenience, we provide R functions that implement the flexTPC model below:
+
+```{R}
+# FlexTPC model for thermal performance curves.
+# (parametrized with alpha/beta)
+flexTPC <- function(temp, Tmin, Tmax, rmax, alpha, beta) {
+  s <- alpha * (1 - alpha) / beta^2
+  result <- rep(0, length(temp))
+  Tidx = (temp > Tmin) & (temp < Tmax)
+  result[Tidx] <- rmax * exp(s * (alpha * log( (temp[Tidx] - Tmin) / alpha) 
+                  + (1 - alpha) * log( (Tmax - temp[Tidx]) / (1 - alpha)) 
+                  - log(Tmax - Tmin)) ) 
+  return(result)
+}
+  
+# FlexTPC model for thermal performance curves.
+# (parametrized with Topt/B)
+flexTPC2 <- function(temp, Tmin, Tmax, rmax, Topt, B) {
+  alpha <- (Topt - Tmin) / (Tmax - Tmin)
+  beta <- B / (Tmax - Tmin)
+  return(flexTPC(temp, Tmin, Tmax, rmax, alpha, beta))
+}
+```
+
+## Reference
+
+Cruz-Loya M, Mordecai, EA, Savage VM. 2024. A flexible model for thermal performance curves. ([biorXiv preprint](https://doi.org/10.1101/2024.08.01.605695)) ([data and code](https://github.com/mcruzloya/flexTPC))
