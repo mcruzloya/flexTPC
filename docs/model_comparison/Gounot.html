@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>flexTPC – Gounot dataset of bacteria from glaciers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">flexTPC</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#fitting-temperature-response-curves-to-model" id="toc-fitting-temperature-response-curves-to-model" class="nav-link active" data-scroll-target="#fitting-temperature-response-curves-to-model">Fitting temperature response curves to model</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Gounot dataset of bacteria from glaciers</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="cell-2" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> minimize</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> LeaveOneOut</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-3" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> briere1(T, Tmin<span class="op">=</span><span class="fl">10.0</span>, Tmax<span class="op">=</span><span class="fl">50.0</span>, c<span class="op">=</span><span class="fl">1.0</span>):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> np.zeros(<span class="bu">len</span>(T))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    cond <span class="op">=</span> (Tmin <span class="op">&lt;</span> T) <span class="op">&amp;</span> (T <span class="op">&lt;</span> Tmax)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    result[cond] <span class="op">=</span> c <span class="op">*</span> T[cond] <span class="op">*</span> np.exp(np.log(T[cond] <span class="op">-</span> Tmin) <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> np.log(Tmax <span class="op">-</span> T[cond]))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> briere2(T, Tmin<span class="op">=</span><span class="fl">10.0</span>, Tmax<span class="op">=</span><span class="fl">50.0</span>, c<span class="op">=</span><span class="fl">1.0</span>, b<span class="op">=</span><span class="fl">2.0</span>):</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> np.zeros(<span class="bu">len</span>(T))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    cond <span class="op">=</span> (Tmin <span class="op">&lt;</span> T) <span class="op">&amp;</span> (T <span class="op">&lt;</span> Tmax)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    result[cond] <span class="op">=</span> c <span class="op">*</span> T[cond] <span class="op">*</span> np.exp(np.log(T[cond] <span class="op">-</span> Tmin) <span class="op">+</span>  np.log(Tmax <span class="op">-</span> T[cond]) <span class="op">/</span> b)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Fully biologically interpretable parametrization of flexTPC model</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> flexTPC(T, Tmin<span class="op">=</span><span class="fl">10.0</span>, Tmax<span class="op">=</span><span class="fl">50.0</span>, rmax<span class="op">=</span><span class="fl">1.0</span>, α<span class="op">=</span><span class="fl">0.8</span>, β<span class="op">=</span><span class="fl">0.2</span>):</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> np.zeros(<span class="bu">len</span>(T))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    cond <span class="op">=</span> (Tmin <span class="op">&lt;</span> T) <span class="op">&amp;</span> (T <span class="op">&lt;</span> Tmax)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> α <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">-</span> α) <span class="op">/</span> β<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    result[cond] <span class="op">=</span> rmax <span class="op">*</span> np.exp(s <span class="op">*</span> (α <span class="op">*</span> (np.log(T[cond] <span class="op">-</span> Tmin) <span class="op">-</span> np.log(α)) <span class="op">+</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                                      (<span class="dv">1</span> <span class="op">-</span> α) <span class="op">*</span> (np.log(Tmax <span class="op">-</span> T[cond]) <span class="op">-</span> np.log(<span class="dv">1</span> <span class="op">-</span> α) )</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                                       <span class="op">-</span> np.log(Tmax <span class="op">-</span> Tmin)))</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-4" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>glacierbac <span class="op">=</span> pd.read_csv(<span class="st">"glacierbac.csv"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>glacierbac</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Unnamed: 0</th>
+<th data-quarto-table-cell-role="th">species</th>
+<th data-quarto-table-cell-role="th">strain</th>
+<th data-quarto-table-cell-role="th">X</th>
+<th data-quarto-table-cell-role="th">Y</th>
+<th data-quarto-table-cell-role="th">psychro</th>
+<th data-quarto-table-cell-role="th">T</th>
+<th data-quarto-table-cell-role="th">r</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0</td>
+<td>Arthrobacter glacialis</td>
+<td>137</td>
+<td>3.457467</td>
+<td>3.761369</td>
+<td>True</td>
+<td>16.0</td>
+<td>0.043007</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1</td>
+<td>Arthrobacter glacialis</td>
+<td>137</td>
+<td>3.482460</td>
+<td>3.985740</td>
+<td>True</td>
+<td>14.0</td>
+<td>0.053825</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2</td>
+<td>Arthrobacter glacialis</td>
+<td>137</td>
+<td>3.501018</td>
+<td>3.973215</td>
+<td>True</td>
+<td>12.0</td>
+<td>0.053155</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>3</td>
+<td>Arthrobacter glacialis</td>
+<td>137</td>
+<td>3.527881</td>
+<td>3.858413</td>
+<td>True</td>
+<td>10.0</td>
+<td>0.047390</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>4</td>
+<td>Arthrobacter glacialis</td>
+<td>137</td>
+<td>3.565603</td>
+<td>3.596571</td>
+<td>True</td>
+<td>7.0</td>
+<td>0.036473</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>5</td>
+<td>Arthrobacter glacialis</td>
+<td>137</td>
+<td>3.603963</td>
+<td>3.328340</td>
+<td>True</td>
+<td>4.0</td>
+<td>0.027892</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>6</td>
+<td>Arthrobacter glacialis</td>
+<td>137</td>
+<td>3.655096</td>
+<td>2.874697</td>
+<td>True</td>
+<td>0.0</td>
+<td>0.017720</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>7</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>3.408169</td>
+<td>3.639039</td>
+<td>True</td>
+<td>20.0</td>
+<td>0.038055</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>8</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>3.431886</td>
+<td>3.888990</td>
+<td>True</td>
+<td>18.0</td>
+<td>0.048862</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>9</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>3.457496</td>
+<td>3.959770</td>
+<td>True</td>
+<td>16.0</td>
+<td>0.052445</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>10</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>3.470943</td>
+<td>4.004769</td>
+<td>True</td>
+<td>15.0</td>
+<td>0.054859</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>11</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>3.492705</td>
+<td>4.017891</td>
+<td>True</td>
+<td>13.0</td>
+<td>0.055584</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>12</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>3.528532</td>
+<td>3.928822</td>
+<td>True</td>
+<td>10.0</td>
+<td>0.050847</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>13</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>3.567542</td>
+<td>3.724600</td>
+<td>True</td>
+<td>7.0</td>
+<td>0.041455</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>14</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>3.607823</td>
+<td>3.462797</td>
+<td>True</td>
+<td>4.0</td>
+<td>0.031906</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">15</td>
+<td>15</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>3.637232</td>
+<td>3.252033</td>
+<td>True</td>
+<td>2.0</td>
+<td>0.025843</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">16</td>
+<td>16</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.254137</td>
+<td>5.044757</td>
+<td>False</td>
+<td>34.0</td>
+<td>0.155207</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>17</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.276011</td>
+<td>5.813081</td>
+<td>False</td>
+<td>32.0</td>
+<td>0.334649</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">18</td>
+<td>18</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.301625</td>
+<td>5.909461</td>
+<td>False</td>
+<td>30.0</td>
+<td>0.368507</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">19</td>
+<td>19</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.322757</td>
+<td>5.986574</td>
+<td>False</td>
+<td>28.0</td>
+<td>0.398048</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">20</td>
+<td>20</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.363704</td>
+<td>5.897580</td>
+<td>False</td>
+<td>24.0</td>
+<td>0.364155</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">21</td>
+<td>21</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.411676</td>
+<td>5.712691</td>
+<td>False</td>
+<td>20.0</td>
+<td>0.302684</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">22</td>
+<td>22</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.460915</td>
+<td>5.431820</td>
+<td>False</td>
+<td>16.0</td>
+<td>0.228565</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">23</td>
+<td>23</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.500546</td>
+<td>5.106008</td>
+<td>False</td>
+<td>13.0</td>
+<td>0.165010</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">24</td>
+<td>24</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.549740</td>
+<td>4.524336</td>
+<td>False</td>
+<td>9.0</td>
+<td>0.092235</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">25</td>
+<td>25</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.605948</td>
+<td>3.769969</td>
+<td>False</td>
+<td>4.0</td>
+<td>0.043379</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">26</td>
+<td>26</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>3.657034</td>
+<td>2.996326</td>
+<td>False</td>
+<td>0.0</td>
+<td>0.020012</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">27</td>
+<td>27</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>3.258599</td>
+<td>4.923223</td>
+<td>False</td>
+<td>34.0</td>
+<td>0.137445</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">28</td>
+<td>28</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>3.277923</td>
+<td>5.761909</td>
+<td>False</td>
+<td>32.0</td>
+<td>0.317955</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">29</td>
+<td>29</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>3.322746</td>
+<td>5.916174</td>
+<td>False</td>
+<td>28.0</td>
+<td>0.370989</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">30</td>
+<td>30</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>3.363047</td>
+<td>5.788771</td>
+<td>False</td>
+<td>24.0</td>
+<td>0.326611</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">31</td>
+<td>31</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>3.410359</td>
+<td>5.463071</td>
+<td>False</td>
+<td>20.0</td>
+<td>0.235821</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">32</td>
+<td>32</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>3.460883</td>
+<td>5.220620</td>
+<td>False</td>
+<td>16.0</td>
+<td>0.185049</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">33</td>
+<td>33</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>3.499878</td>
+<td>4.913998</td>
+<td>False</td>
+<td>13.0</td>
+<td>0.136183</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">34</td>
+<td>34</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>3.549093</td>
+<td>4.479527</td>
+<td>False</td>
+<td>9.0</td>
+<td>0.088193</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">35</td>
+<td>35</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>3.606580</td>
+<td>3.712378</td>
+<td>False</td>
+<td>4.0</td>
+<td>0.040951</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">36</td>
+<td>36</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>3.252846</td>
+<td>4.967938</td>
+<td>False</td>
+<td>34.0</td>
+<td>0.143730</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">37</td>
+<td>37</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>3.276656</td>
+<td>5.845091</td>
+<td>False</td>
+<td>32.0</td>
+<td>0.345534</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">38</td>
+<td>38</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>3.302292</td>
+<td>6.088670</td>
+<td>False</td>
+<td>30.0</td>
+<td>0.440835</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">39</td>
+<td>39</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>3.321507</td>
+<td>6.191355</td>
+<td>False</td>
+<td>28.0</td>
+<td>0.488508</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">40</td>
+<td>40</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>3.351601</td>
+<td>6.287801</td>
+<td>False</td>
+<td>25.0</td>
+<td>0.537969</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">41</td>
+<td>41</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>3.411068</td>
+<td>5.930282</td>
+<td>False</td>
+<td>20.0</td>
+<td>0.376261</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">42</td>
+<td>42</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>3.531257</td>
+<td>5.042463</td>
+<td>False</td>
+<td>10.0</td>
+<td>0.154851</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">43</td>
+<td>43</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>3.590712</td>
+<td>4.601743</td>
+<td>False</td>
+<td>5.0</td>
+<td>0.099658</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">44</td>
+<td>44</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>3.627744</td>
+<td>4.013492</td>
+<td>False</td>
+<td>3.0</td>
+<td>0.055340</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<section id="fitting-temperature-response-curves-to-model" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-temperature-response-curves-to-model">Fitting temperature response curves to model</h2>
+<div id="cell-6" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> nloglik(θ, Tdata, rdata, model<span class="op">=</span>flexTPC):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    params, σ<span class="dv">2</span> <span class="op">=</span> θ[:<span class="op">-</span><span class="dv">1</span>], θ[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    Tmin, Tmax <span class="op">=</span> θ[:<span class="dv">2</span>]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    outside <span class="op">=</span> (Tdata <span class="op">&lt;</span> Tmin) <span class="op">|</span> (Tdata <span class="op">&gt;</span> Tmax)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    inside <span class="op">=</span> <span class="op">~</span>outside</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(rdata[inside])</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.<span class="bu">any</span>(rdata[outside] <span class="op">&gt;</span> <span class="fl">0.0</span>):</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.inf</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (n <span class="op">*</span> np.log(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">*</span>σ<span class="dv">2</span>) <span class="op">+</span> np.<span class="bu">sum</span>((rdata[inside] <span class="op">-</span> model(Tdata[inside], <span class="op">*</span>params))<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> σ<span class="dv">2</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> AIC(nll, p):</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> nll <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> p </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> BIC(nll, n, p):</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> nll <span class="op">+</span> p <span class="op">*</span> np.log(n)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-7" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>strains <span class="op">=</span> [<span class="dv">55</span>, <span class="dv">60</span>, <span class="dv">76</span>, <span class="dv">137</span>, <span class="dv">158</span>]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>initial_b1 <span class="op">=</span> {<span class="dv">55</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">35.0</span>, <span class="fl">0.0002</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>              <span class="dv">60</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">35.0</span>, <span class="fl">0.0002</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>              <span class="dv">76</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">35.0</span>, <span class="fl">0.0003</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>             <span class="dv">137</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">22.0</span>, <span class="fl">0.00008</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>             <span class="dv">158</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">22.0</span>, <span class="fl">0.00008</span>, <span class="fl">0.01</span>]}</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>initial_b2 <span class="op">=</span> {<span class="dv">55</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">35.0</span>, <span class="fl">0.0002</span>, <span class="fl">2.0</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>              <span class="dv">60</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">35.0</span>, <span class="fl">0.0002</span>, <span class="fl">2.0</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>              <span class="dv">76</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">35.0</span>, <span class="fl">0.0003</span>, <span class="fl">2.0</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>             <span class="dv">137</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">22.0</span>, <span class="fl">0.00008</span>, <span class="fl">2.0</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>             <span class="dv">158</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">22.0</span>, <span class="fl">0.00008</span>, <span class="fl">2.0</span>, <span class="fl">0.01</span>]}</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>initial_flex <span class="op">=</span> {<span class="dv">55</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">35.0</span>, <span class="fl">0.4</span>, <span class="fl">0.8</span>, <span class="fl">0.2</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>              <span class="dv">60</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">35.0</span>, <span class="fl">0.4</span>, <span class="fl">0.8</span>, <span class="fl">0.2</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>              <span class="dv">76</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">35.0</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span>, <span class="fl">0.2</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>             <span class="dv">137</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">22.0</span>, <span class="fl">0.05</span>, <span class="fl">0.8</span>, <span class="fl">0.2</span>, <span class="fl">0.01</span>],</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>             <span class="dv">158</span>:[<span class="op">-</span><span class="fl">5.0</span>, <span class="fl">22.0</span>, <span class="fl">0.05</span>, <span class="fl">0.8</span>, <span class="fl">0.2</span>, <span class="fl">0.01</span>]}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-8" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check initial value curves.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> np.arange(<span class="op">-</span><span class="dv">10</span>, <span class="dv">40</span>, <span class="fl">0.001</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="fl">4.33</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, s <span class="kw">in</span> <span class="bu">enumerate</span>(strains):</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> glacierbac[glacierbac[<span class="st">"strain"</span>] <span class="op">==</span> s]</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    species <span class="op">=</span> <span class="bu">list</span>(subset[<span class="st">"species"</span>])[<span class="dv">0</span>]</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    plt.subplot(<span class="dv">2</span>, <span class="dv">3</span>, i<span class="op">+</span><span class="dv">1</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot datapoints.</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    Tdata <span class="op">=</span> subset[<span class="st">"T"</span>]</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    rdata <span class="op">=</span> subset[<span class="st">"r"</span>]</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    plt.plot(Tdata, rdata, <span class="st">'^'</span>, markersize<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    plt.xticks(fontsize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    plt.yticks(fontsize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    plt.xlim(<span class="op">-</span><span class="dv">10</span>, <span class="dv">37</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    plt.ylim(<span class="dv">0</span>, <span class="bu">max</span>(rdata)<span class="op">*</span><span class="fl">1.1</span>)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot fitted curves by Briere.</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">#params = params_b1[s]["x"]</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.plot(T, briere1(T, *params[:-1]), color="firebrick")</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    plt.plot(T, briere1(T, <span class="op">*</span>initial_b1[s][:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"firebrick"</span>)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>             </span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">#params = params_eb[s]["x"]</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.plot(T, extbriere(T, *params[:-1]), color="steelblue")</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    plt.plot(T, flexTPC(T, <span class="op">*</span>initial_flex[s][:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"darkgreen"</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.ylim(-0.025, 0.425)</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">"Temperature [°C]"</span>, fontsize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"Growth rate"</span>, fontsize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    plt.title(species <span class="op">+</span> <span class="st">" "</span> <span class="op">+</span> <span class="bu">str</span>(s), fontsize<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Gounot_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-9" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># LOOCV.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>loo <span class="op">=</span> LeaveOneOut()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> {<span class="st">"flexTPC"</span>:{}, <span class="st">"b1"</span>:{}, <span class="st">"b2"</span>:{}}</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> [<span class="st">"b1"</span>, <span class="st">"b2"</span>, <span class="st">"flexTPC"</span>]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>method <span class="op">=</span> <span class="st">"Nelder-Mead"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>loocv_nll <span class="op">=</span> {model:{strain:[] <span class="cf">for</span> strain <span class="kw">in</span> strains } <span class="cf">for</span> model <span class="kw">in</span> models}</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, s <span class="kw">in</span> <span class="bu">enumerate</span>(strains):</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> glacierbac[glacierbac[<span class="st">"strain"</span>] <span class="op">==</span> s]</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    Tdata <span class="op">=</span> np.array(subset[<span class="st">"T"</span>])</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    rdata <span class="op">=</span> np.array(subset[<span class="st">"r"</span>])</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    loo.get_n_splits(glacierbac[<span class="st">"T"</span>][glacierbac[<span class="st">"strain"</span>] <span class="op">==</span> s])</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> train, test <span class="kw">in</span> loo.split(Tdata):</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        T_train, r_train <span class="op">=</span> Tdata[train], rdata[train]</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        T_test, r_test <span class="op">=</span> Tdata[test], rdata[test]</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        params[<span class="st">"b1"</span>][s] <span class="op">=</span> minimize(nloglik, initial_b1[s],</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                                   bounds<span class="op">=</span>[(<span class="op">-</span><span class="fl">20.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">10.0</span>, <span class="fl">50.0</span>), </span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">0.0</span>, <span class="fl">1.0</span>),  </span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                                           (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                          args<span class="op">=</span>(T_train, r_train, briere1), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">10000</span>}, method<span class="op">=</span>method)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> params[<span class="st">"b1"</span>][s][<span class="st">"x"</span>]</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        loocv_nll[<span class="st">"b1"</span>][s].append(nloglik(θ, T_test, r_test, model<span class="op">=</span>briere1))</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>        params[<span class="st">"b2"</span>][s] <span class="op">=</span> minimize(nloglik, initial_b2[s],</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>                                   bounds<span class="op">=</span>[(<span class="op">-</span><span class="fl">20.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">10.0</span>, <span class="fl">50.0</span>), </span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">0.0</span>, <span class="fl">1.0</span>),</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">0.0</span>, <span class="fl">20.0</span>),</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>                                           (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>                          args<span class="op">=</span>(Tdata, rdata, briere2), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">10000</span>}, method<span class="op">=</span>method)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> params[<span class="st">"b2"</span>][s][<span class="st">"x"</span>]</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        loocv_nll[<span class="st">"b2"</span>][s].append(nloglik(θ, T_test, r_test, model<span class="op">=</span>briere2))     </span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        params[<span class="st">"flexTPC"</span>][s] <span class="op">=</span> minimize(nloglik, initial_flex[s],</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>                                        bounds<span class="op">=</span>[(<span class="op">-</span><span class="fl">20.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>                                               (<span class="fl">10.0</span>, <span class="fl">50.0</span>), </span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>                                               (<span class="fl">0.0</span>, <span class="fl">1.0</span>),</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>                                               (<span class="fl">0.0</span>, <span class="fl">1.0</span>),</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>                                               (<span class="fl">0.0</span>, np.inf),</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>                                               (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>                          args<span class="op">=</span>(Tdata, rdata, flexTPC), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">10000</span>}, method<span class="op">=</span>method)</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> params[<span class="st">"flexTPC"</span>][s][<span class="st">"x"</span>]</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>        loocv_nll[<span class="st">"flexTPC"</span>][s].append(nloglik(θ, T_test, r_test, model<span class="op">=</span>flexTPC))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14016/2868019315.py:10: RuntimeWarning: divide by zero encountered in log
+  return 0.5 * (n * np.log(2*np.pi*σ2) + np.sum((rdata[inside] - model(Tdata[inside], *params))**2 / σ2))
+/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14016/2868019315.py:10: RuntimeWarning: divide by zero encountered in divide
+  return 0.5 * (n * np.log(2*np.pi*σ2) + np.sum((rdata[inside] - model(Tdata[inside], *params))**2 / σ2))
+/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14016/2868019315.py:10: RuntimeWarning: invalid value encountered in scalar add
+  return 0.5 * (n * np.log(2*np.pi*σ2) + np.sum((rdata[inside] - model(Tdata[inside], *params))**2 / σ2))</code></pre>
+</div>
+</div>
+<div id="cell-10" class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>?minimize</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-11" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit to whole datasets.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> {<span class="st">"b1"</span>:{}, <span class="st">"b2"</span>:{}, <span class="st">"flexTPC"</span>:{}}</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> [<span class="st">"b1"</span>, <span class="st">"b2"</span>, <span class="st">"flexTPC"</span>]</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>method <span class="op">=</span> <span class="st">"Nelder-Mead"</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, s <span class="kw">in</span> <span class="bu">enumerate</span>(strains):</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> glacierbac[glacierbac[<span class="st">"strain"</span>] <span class="op">==</span> s]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    Tdata <span class="op">=</span> np.array(subset[<span class="st">"T"</span>])</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    rdata <span class="op">=</span> np.array(subset[<span class="st">"r"</span>])    </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    params[<span class="st">"b1"</span>][s] <span class="op">=</span> minimize(nloglik, initial_b1[s],</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                               bounds<span class="op">=</span>[(<span class="op">-</span><span class="fl">20.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">10.0</span>, <span class="fl">50.0</span>), </span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">0.0</span>, <span class="fl">1.0</span>),  </span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>                                           (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>                      args<span class="op">=</span>(Tdata, rdata, briere1), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">100000</span>}, method<span class="op">=</span>method)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    params[<span class="st">"b2"</span>][s] <span class="op">=</span> minimize(nloglik, initial_b2[s],</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>                               bounds<span class="op">=</span>[(<span class="op">-</span><span class="fl">20.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">10.0</span>, <span class="fl">50.0</span>), </span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">0.0</span>, <span class="fl">1.0</span>),</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                                           (<span class="fl">0.0</span>, <span class="fl">20.0</span>),</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                                           (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>                      args<span class="op">=</span>(Tdata, rdata, briere2), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">100000</span>}, method<span class="op">=</span>method)</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    params[<span class="st">"flexTPC"</span>][s] <span class="op">=</span> minimize(nloglik, initial_flex[s],</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>                                    bounds<span class="op">=</span>[(<span class="op">-</span><span class="fl">20.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>                                               (<span class="fl">10.0</span>, <span class="fl">50.0</span>), </span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>                                               (<span class="fl">0.0</span>, <span class="fl">1.0</span>),</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>                                               (<span class="fl">0.0</span>, <span class="fl">1.0</span>),</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>                                               (<span class="fl">0.0</span>, np.inf),</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>                                               (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>                      args<span class="op">=</span>(Tdata, rdata), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">100000</span>}, method<span class="op">=</span>method)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14016/2868019315.py:10: RuntimeWarning: divide by zero encountered in log
+  return 0.5 * (n * np.log(2*np.pi*σ2) + np.sum((rdata[inside] - model(Tdata[inside], *params))**2 / σ2))
+/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14016/2868019315.py:10: RuntimeWarning: divide by zero encountered in divide
+  return 0.5 * (n * np.log(2*np.pi*σ2) + np.sum((rdata[inside] - model(Tdata[inside], *params))**2 / σ2))
+/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14016/2868019315.py:10: RuntimeWarning: invalid value encountered in scalar add
+  return 0.5 * (n * np.log(2*np.pi*σ2) + np.sum((rdata[inside] - model(Tdata[inside], *params))**2 / σ2))</code></pre>
+</div>
+</div>
+<div id="cell-12" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>params[<span class="st">"flexTPC"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>{55:        message: Optimization terminated successfully.
+        success: True
+         status: 0
+            fun: -39.65586276875569
+              x: [-9.778e+00  3.446e+01  3.967e-01  8.511e-01  1.914e-01
+                   4.331e-05]
+            nit: 376
+           nfev: 620
+  final_simplex: (array([[-9.778e+00,  3.446e+01, ...,  1.914e-01,
+                          4.331e-05],
+                        [-9.778e+00,  3.446e+01, ...,  1.914e-01,
+                          4.330e-05],
+                        ...,
+                        [-9.778e+00,  3.446e+01, ...,  1.914e-01,
+                          4.331e-05],
+                        [-9.778e+00,  3.446e+01, ...,  1.914e-01,
+                          4.330e-05]]), array([-3.966e+01, -3.966e+01, -3.966e+01, -3.966e+01,
+                        -3.966e+01, -3.966e+01, -3.966e+01])),
+ 60:        message: Optimization terminated successfully.
+        success: True
+         status: 0
+            fun: -33.56410489101529
+              x: [-2.000e+01  3.426e+01  3.698e-01  9.001e-01  1.386e-01
+                   3.382e-05]
+            nit: 731
+           nfev: 1132
+  final_simplex: (array([[-2.000e+01,  3.426e+01, ...,  1.386e-01,
+                          3.382e-05],
+                        [-2.000e+01,  3.426e+01, ...,  1.386e-01,
+                          3.387e-05],
+                        ...,
+                        [-2.000e+01,  3.426e+01, ...,  1.386e-01,
+                          3.385e-05],
+                        [-2.000e+01,  3.426e+01, ...,  1.386e-01,
+                          3.384e-05]]), array([-3.356e+01, -3.356e+01, -3.356e+01, -3.356e+01,
+                        -3.356e+01, -3.356e+01, -3.356e+01])),
+ 76:        message: Optimization terminated successfully.
+        success: True
+         status: 0
+            fun: -23.344804943246306
+              x: [-2.000e+01  3.482e+01  5.078e-01  8.481e-01  1.510e-01
+                   3.272e-04]
+            nit: 1149
+           nfev: 1740
+  final_simplex: (array([[-2.000e+01,  3.482e+01, ...,  1.510e-01,
+                          3.272e-04],
+                        [-2.000e+01,  3.482e+01, ...,  1.510e-01,
+                          3.273e-04],
+                        ...,
+                        [-2.000e+01,  3.482e+01, ...,  1.510e-01,
+                          3.273e-04],
+                        [-2.000e+01,  3.482e+01, ...,  1.510e-01,
+                          3.273e-04]]), array([-2.334e+01, -2.334e+01, -2.334e+01, -2.334e+01,
+                        -2.334e+01, -2.334e+01, -2.334e+01])),
+ 137:        message: Optimization terminated successfully.
+        success: True
+         status: 0
+            fun: -31.206557942448455
+              x: [-9.353e+00  2.433e+01  5.088e-02  6.554e-01  2.325e-01
+                   7.856e-06]
+            nit: 388
+           nfev: 646
+  final_simplex: (array([[-9.353e+00,  2.433e+01, ...,  2.325e-01,
+                          7.856e-06],
+                        [-9.353e+00,  2.433e+01, ...,  2.325e-01,
+                          7.856e-06],
+                        ...,
+                        [-9.353e+00,  2.433e+01, ...,  2.325e-01,
+                          7.856e-06],
+                        [-9.353e+00,  2.433e+01, ...,  2.325e-01,
+                          7.856e-06]]), array([-3.121e+01, -3.121e+01, -3.121e+01, -3.121e+01,
+                        -3.121e+01, -3.121e+01, -3.121e+01])),
+ 158:        message: Optimization terminated successfully.
+        success: True
+         status: 0
+            fun: -51.12053843952405
+              x: [-5.551e+00  2.333e+01  5.495e-02  6.703e-01  3.158e-01
+                   6.822e-07]
+            nit: 263
+           nfev: 439
+  final_simplex: (array([[-5.551e+00,  2.333e+01, ...,  3.158e-01,
+                          6.822e-07],
+                        [-5.551e+00,  2.333e+01, ...,  3.158e-01,
+                          6.819e-07],
+                        ...,
+                        [-5.551e+00,  2.333e+01, ...,  3.158e-01,
+                          6.824e-07],
+                        [-5.551e+00,  2.333e+01, ...,  3.158e-01,
+                          6.819e-07]]), array([-5.112e+01, -5.112e+01, -5.112e+01, -5.112e+01,
+                        -5.112e+01, -5.112e+01, -5.112e+01]))}</code></pre>
+</div>
+</div>
+<div id="cell-13" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> np.arange(<span class="op">-</span><span class="dv">10</span>, <span class="dv">40</span>, <span class="fl">0.001</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="fl">6.5</span>, <span class="dv">3</span>), dpi<span class="op">=</span><span class="dv">300</span>, sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="st">'row'</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, s <span class="kw">in</span> <span class="bu">enumerate</span>(strains):</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> axarr[i <span class="op">//</span> <span class="dv">3</span>, i <span class="op">%</span> <span class="dv">3</span>]</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> glacierbac[glacierbac[<span class="st">"strain"</span>] <span class="op">==</span> s]</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    species <span class="op">=</span> <span class="bu">list</span>(subset[<span class="st">"species"</span>])[<span class="dv">0</span>]</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot datapoints.</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    Tdata <span class="op">=</span> subset[<span class="st">"T"</span>]</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    rdata <span class="op">=</span> subset[<span class="st">"r"</span>]</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    ax.plot(Tdata, rdata, <span class="st">'^'</span>, markersize<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks([<span class="op">-</span><span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>])</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(<span class="op">-</span><span class="dv">10</span>, <span class="dv">37</span>)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> s <span class="kw">in</span> (<span class="dv">55</span>, <span class="dv">60</span>, <span class="dv">76</span>):</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>        <span class="co">#ax.set_ylim(0, round(max(rdata)*1.2, 1) )</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">#ax.set_yticks(fontsize=5)</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>        ax.set_ylim(<span class="dv">0</span>, <span class="fl">0.6</span>)</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>        ax.set_ylim(<span class="dv">0</span>, <span class="fl">0.06</span>)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        <span class="co">#ax.set_ylim(0, round(max(rdata)*1.1, 2) )</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot fitted curves by Briere.</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"b1"</span>][s][<span class="st">"x"</span>]</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, briere1(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"firebrick"</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"b2"</span>][s][<span class="st">"x"</span>]</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, briere2(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"orange"</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">#par = params["rmb3"][s]["x"]</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.plot(T, rmodbriere_3(T, *par[:-1]), color="blue", alpha=0.7)</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">#par = params["rmb4"][s]["x"]</span></span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.plot(T, rmodbriere_4(T, *par[:-1]), color="gray", alpha=0.7)</span></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>             </span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"flexTPC"</span>][s][<span class="st">"x"</span>]</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, flexTPC(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"darkgreen"</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>    ax.set_title(species <span class="op">+</span> <span class="st">" ("</span> <span class="op">+</span> <span class="bu">str</span>(s) <span class="op">+</span> <span class="st">")"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> s <span class="kw">in</span> (<span class="dv">137</span>, <span class="dv">158</span>):</span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>        ax.set_xlabel(<span class="st">"Temperature [°C]"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> s <span class="kw">in</span> (<span class="dv">55</span>, <span class="dv">137</span>):</span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>        ax.set_ylabel(<span class="vs">r"Growth rate [1 / h]"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>axarr[<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>].axis(<span class="st">"off"</span>)</span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>fig.align_labels()</span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"glacierbac.pdf"</span>)</span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"glacierbac.png"</span>)</span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"glacierbac.svg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Gounot_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-14" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>species_list <span class="op">=</span> [<span class="st">'Arthrobacter sp'</span>, <span class="st">'Arthrobacter sp'</span>, <span class="st">'Pseudomonas'</span>, <span class="st">'Arthrobacter glacialis'</span>, <span class="st">'Arthrobacter glacialis'</span>]</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>n_params <span class="op">=</span> {<span class="st">'b1'</span>:<span class="dv">4</span>, <span class="st">'b2'</span>:<span class="dv">5</span>, <span class="st">'flexTPC'</span>:<span class="dv">6</span>} <span class="co"># Includes standard deviation.</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>param_matrix <span class="op">=</span> {model:np.zeros((<span class="dv">5</span>, n_params[model])) <span class="cf">for</span> model <span class="kw">in</span> models}</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> models:</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, strain <span class="kw">in</span> <span class="bu">enumerate</span>(strains):</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        param_matrix[model][i, ] <span class="op">=</span> params[model][strain][<span class="st">"x"</span>]</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>colnames <span class="op">=</span> {<span class="st">'b1'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'c'</span>, <span class="st">'sigma2'</span>],</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">'b2'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'c'</span>, <span class="st">'m'</span>, <span class="st">'sigma2'</span>],</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">'flexTPC'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'rmax'</span>, <span class="st">'alpha'</span>, <span class="st">'beta'</span>, <span class="st">'sigma2'</span>]}</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>param_df <span class="op">=</span> {model:pd.DataFrame(param_matrix[model], columns<span class="op">=</span>colnames[model]) <span class="cf">for</span> model <span class="kw">in</span> models}</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> models:</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    param_df[model][<span class="st">'strain'</span>] <span class="op">=</span> strains</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    param_df[model][<span class="st">'species'</span>] <span class="op">=</span> species_list</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    param_df[model] <span class="op">=</span> param_df[model][[<span class="st">'species'</span>, <span class="st">'strain'</span>] <span class="op">+</span> colnames[model]]</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    param_df[model].to_csv(<span class="ss">f'glacierbac_params_</span><span class="sc">{</span>model<span class="sc">}</span><span class="ss">.csv'</span>, index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-15" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>param_df[<span class="st">'flexTPC'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">species</th>
+<th data-quarto-table-cell-role="th">strain</th>
+<th data-quarto-table-cell-role="th">Tmin</th>
+<th data-quarto-table-cell-role="th">Tmax</th>
+<th data-quarto-table-cell-role="th">rmax</th>
+<th data-quarto-table-cell-role="th">alpha</th>
+<th data-quarto-table-cell-role="th">beta</th>
+<th data-quarto-table-cell-role="th">sigma2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Arthrobacter sp</td>
+<td>55</td>
+<td>-9.777811</td>
+<td>34.456556</td>
+<td>0.396684</td>
+<td>0.851142</td>
+<td>0.191401</td>
+<td>4.330609e-05</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Arthrobacter sp</td>
+<td>60</td>
+<td>-19.999030</td>
+<td>34.263106</td>
+<td>0.369805</td>
+<td>0.900109</td>
+<td>0.138623</td>
+<td>3.382453e-05</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Pseudomonas</td>
+<td>76</td>
+<td>-19.999933</td>
+<td>34.822869</td>
+<td>0.507802</td>
+<td>0.848116</td>
+<td>0.151044</td>
+<td>3.272288e-04</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Arthrobacter glacialis</td>
+<td>137</td>
+<td>-9.353280</td>
+<td>24.330746</td>
+<td>0.050876</td>
+<td>0.655434</td>
+<td>0.232482</td>
+<td>7.856058e-06</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Arthrobacter glacialis</td>
+<td>158</td>
+<td>-5.551258</td>
+<td>23.326786</td>
+<td>0.054946</td>
+<td>0.670261</td>
+<td>0.315771</td>
+<td>6.822184e-07</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-16" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>species_list <span class="op">=</span> <span class="bu">list</span>(<span class="bu">set</span>(glacierbac[<span class="st">"species"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-18" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>nll <span class="op">=</span> np.zeros((<span class="bu">len</span>(strains), <span class="bu">len</span>(models)))</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>loo_nll <span class="op">=</span> np.zeros((<span class="bu">len</span>(strains), <span class="bu">len</span>(models)))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>aic <span class="op">=</span> np.zeros((<span class="bu">len</span>(strains), <span class="bu">len</span>(models)))</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>bic <span class="op">=</span> np.zeros((<span class="bu">len</span>(strains), <span class="bu">len</span>(models)))</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> [<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>] <span class="co"># Number of parameters</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, s <span class="kw">in</span> <span class="bu">enumerate</span>(strains):</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(glacierbac[glacierbac[<span class="st">"strain"</span>] <span class="op">==</span> s]) <span class="co"># Number of datapoints.</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j, m <span class="kw">in</span> <span class="bu">enumerate</span>(models): </span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        nll[i, j] <span class="op">=</span> params[m][s][<span class="st">"fun"</span>]</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>        loo_nll[i, j] <span class="op">=</span> np.mean(loocv_nll[m][s])</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>        aic[i, j] <span class="op">=</span> AIC(nll[i, j], p[j])</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        bic[i, j] <span class="op">=</span> BIC(nll[i, j], n, p[j])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-19" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(glacierbac)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<pre><code>45</code></pre>
+</div>
+</div>
+<div id="cell-20" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>dfAIC <span class="op">=</span> pd.DataFrame(np.<span class="bu">round</span>(aic, <span class="dv">2</span>), columns<span class="op">=</span>models, index<span class="op">=</span>strains)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>dfBIC <span class="op">=</span> pd.DataFrame(np.<span class="bu">round</span>(bic, <span class="dv">2</span>), columns<span class="op">=</span>models, index<span class="op">=</span>strains)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>dfLOOCV <span class="op">=</span> pd.DataFrame(np.<span class="bu">round</span>(loo_nll, <span class="dv">2</span>), columns<span class="op">=</span>models, index<span class="op">=</span>strains)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-21" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>dfAIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">b1</th>
+<th data-quarto-table-cell-role="th">b2</th>
+<th data-quarto-table-cell-role="th">flexTPC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">55</td>
+<td>-60.66</td>
+<td>-63.68</td>
+<td>-67.31</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">60</td>
+<td>-37.43</td>
+<td>-46.32</td>
+<td>-55.13</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">76</td>
+<td>-31.86</td>
+<td>-30.17</td>
+<td>-34.69</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">137</td>
+<td>-41.18</td>
+<td>-38.82</td>
+<td>-50.41</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">158</td>
+<td>-52.02</td>
+<td>-64.14</td>
+<td>-90.24</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-22" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>dfBIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">b1</th>
+<th data-quarto-table-cell-role="th">b2</th>
+<th data-quarto-table-cell-role="th">flexTPC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">55</td>
+<td>-59.07</td>
+<td>-61.69</td>
+<td>-64.92</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">60</td>
+<td>-36.64</td>
+<td>-45.33</td>
+<td>-53.94</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">76</td>
+<td>-31.07</td>
+<td>-29.19</td>
+<td>-33.51</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">137</td>
+<td>-41.40</td>
+<td>-39.09</td>
+<td>-50.74</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">158</td>
+<td>-51.24</td>
+<td>-63.15</td>
+<td>-89.06</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-23" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>dfLOOCV</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">b1</th>
+<th data-quarto-table-cell-role="th">b2</th>
+<th data-quarto-table-cell-role="th">flexTPC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">55</td>
+<td>0.27</td>
+<td>-3.35</td>
+<td>-3.61</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">60</td>
+<td>2.53</td>
+<td>-3.13</td>
+<td>-3.73</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">76</td>
+<td>inf</td>
+<td>-2.23</td>
+<td>-2.59</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">137</td>
+<td>-1.32</td>
+<td>-3.49</td>
+<td>-4.46</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">158</td>
+<td>inf</td>
+<td>-4.12</td>
+<td>-5.68</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
