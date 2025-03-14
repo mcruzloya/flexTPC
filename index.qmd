@@ -131,4 +131,4 @@ flexTPC2 <- function(temp, Tmin, Tmax, rmax, Topt, B) {
 
 If you use flexTPC, please cite
 
-Cruz-Loya M, Mordecai, EA, Savage VM. 2024. A flexible model for thermal performance curves. ([biorXiv preprint](https://doi.org/10.1101/2024.08.01.605695)) ([data and code](https://github.com/mcruzloya/flexTPC))
+Cruz-Loya M, Mordecai EA, Savage VM. 2024. A flexible model for thermal performance curves. ([biorXiv preprint](https://doi.org/10.1101/2024.08.01.605695)) ([data and code](https://github.com/mcruzloya/flexTPC))
