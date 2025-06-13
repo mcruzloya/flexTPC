@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>flexTPC – Comparison of Briere models and flexTPC on antibiotic dataset</title>
+<title>flexTPC – Model comparison on antibiotic dataset</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -130,8 +130,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../about.html"> 
-<span class="menu-text">About</span></a>
+    <a class="nav-link" href="../fit_examples.html"> 
+<span class="menu-text">Tutorial</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -158,7 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Comparison of Briere models and flexTPC on antibiotic dataset</h1>
+<h1 class="title">Model comparison on antibiotic dataset</h1>
 </div>
 
 
@@ -175,7 +175,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="cell-2" class="cell" data-execution_count="30">
+<div id="cell-2" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
@@ -187,7 +187,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> minimize</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> LeaveOneOut</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-3" class="cell" data-execution_count="31">
+<div id="cell-3" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> briere1(T, Tmin<span class="op">=</span><span class="fl">10.0</span>, Tmax<span class="op">=</span><span class="fl">50.0</span>, c<span class="op">=</span><span class="fl">1.0</span>):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> np.zeros(<span class="bu">len</span>(T))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    cond <span class="op">=</span> (Tmin <span class="op">&lt;</span> T) <span class="op">&amp;</span> (T <span class="op">&lt;</span> Tmax)</span>
@@ -208,13 +208,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    result[cond] <span class="op">=</span> rmax <span class="op">*</span> np.exp(s <span class="op">*</span> (α <span class="op">*</span> (np.log(T[cond] <span class="op">-</span> Tmin) <span class="op">-</span> np.log(α)) <span class="op">+</span></span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                                      (<span class="dv">1</span> <span class="op">-</span> α) <span class="op">*</span> (np.log(Tmax <span class="op">-</span> T[cond]) <span class="op">-</span> np.log(<span class="dv">1</span> <span class="op">-</span> α) )</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                                       <span class="op">-</span> np.log(Tmax <span class="op">-</span> Tmin)))</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Exponential product curve.</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> expprodcurve(T, Tmin<span class="op">=</span><span class="fl">10.0</span>, Tmax<span class="op">=</span><span class="fl">50.0</span>, c<span class="op">=</span><span class="fl">1.0</span>, kI<span class="op">=</span><span class="fl">0.1</span>, kU<span class="op">=</span><span class="fl">0.5</span>):</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> np.zeros(<span class="bu">len</span>(T))</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    cond <span class="op">=</span> (Tmin <span class="op">&lt;</span> T) <span class="op">&amp;</span> (T <span class="op">&lt;</span> Tmax)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    result[cond] <span class="op">=</span> c <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">-</span> np.exp(<span class="op">-</span>kI<span class="op">*</span>(T[cond] <span class="op">-</span> Tmin))) <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">-</span> np.exp(<span class="op">-</span>kU<span class="op">*</span>(Tmax <span class="op">-</span> T[cond])))</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Kumaraswarmy distribution TPC.</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> kumaraswarmy(T, Tmin<span class="op">=</span><span class="fl">10.0</span>, Tmax<span class="op">=</span><span class="fl">50.0</span>, c<span class="op">=</span><span class="fl">1.0</span>, a<span class="op">=</span><span class="fl">5.0</span>, b<span class="op">=</span><span class="fl">5.0</span>):</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> np.zeros(<span class="bu">len</span>(T))</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    cond <span class="op">=</span> (Tmin <span class="op">&lt;</span> T) <span class="op">&amp;</span> (T <span class="op">&lt;</span> Tmax)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    τ <span class="op">=</span> (T[cond] <span class="op">-</span> Tmin) <span class="op">/</span> (Tmax <span class="op">-</span> Tmin)</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    result[cond] <span class="op">=</span> c <span class="op">*</span> τ<span class="op">**</span>(a <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">-</span> τ<span class="op">**</span>a)<span class="op">**</span>(b <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-4" class="cell" data-execution_count="32">
+<div id="cell-4" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> nloglik2(θ, Tdata, rdata, model<span class="op">=</span>flexTPC):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    params, σ<span class="dv">2</span> <span class="op">=</span> θ[:<span class="op">-</span><span class="dv">1</span>], θ[<span class="op">-</span><span class="dv">1</span>]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    Tmin, Tmax <span class="op">=</span> θ[:<span class="dv">2</span>]</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    outside <span class="op">=</span> (Tdata <span class="op">&lt;</span> Tmin) <span class="op">|</span> (Tdata <span class="op">&gt;</span> Tmax)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#outside = (Tdata &lt; Tmin) | (Tdata &gt; Tmax)</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(rdata)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (n <span class="op">*</span> np.log(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">*</span>σ<span class="dv">2</span>) <span class="op">+</span> np.<span class="bu">sum</span>((rdata <span class="op">-</span> model(Tdata, <span class="op">*</span>params))<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> σ<span class="dv">2</span>))</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    </span>
@@ -226,7 +241,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="e.-coli-antibiotics-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="e.-coli-antibiotics-dataset">E. coli antibiotics dataset</h2>
-<div id="cell-6" class="cell" data-execution_count="33">
+<div id="cell-6" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>abcoli <span class="op">=</span> pd.read_csv(<span class="st">"ab_data.csv"</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>single <span class="op">=</span> abcoli[(abcoli[<span class="st">"drug2name"</span>] <span class="op">==</span> <span class="st">"WT"</span>)]</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>drugs <span class="op">=</span> [<span class="st">'AMP'</span>,</span>
@@ -243,9 +258,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a> <span class="st">'TOB'</span>,</span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a> <span class="st">'WT'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-7" class="cell" data-execution_count="34">
+<div id="cell-7" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>drugs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>['AMP',
  'CLI',
  'CPR',
@@ -261,9 +276,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  'WT']</code></pre>
 </div>
 </div>
-<div id="cell-8" class="cell" data-execution_count="35">
+<div id="cell-8" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>single</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="35">
+<div class="cell-output cell-output-display" data-execution_count="6">
 <div>
 
 
@@ -410,15 +425,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cell-9" class="cell" data-execution_count="36">
+<div id="cell-9" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>abdata <span class="op">=</span> single.groupby([<span class="st">"drug1name"</span>, <span class="st">"T"</span>], as_index<span class="op">=</span><span class="va">False</span>).agg({<span class="st">'OD'</span>:<span class="st">'mean'</span>})</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Set low values to zero</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#abdata["OD"][abdata["OD"] &lt; 0.02] = 0.0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-10" class="cell" data-execution_count="37">
+<div id="cell-10" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>abdata[abdata[<span class="st">"OD"</span>] <span class="op">&lt;</span> <span class="fl">0.0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="37">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <div>
 
 
@@ -438,9 +453,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cell-11" class="cell" data-execution_count="38">
+<div id="cell-11" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>abdata[abdata[<span class="st">"drug1name"</span>] <span class="op">==</span> <span class="st">"AMP"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="38">
+<div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 
 
@@ -502,34 +517,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cell-12" class="cell" data-execution_count="39">
+<div id="cell-12" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> nloglikab(θ, Tdata, rdata, model<span class="op">=</span>flexTPC):</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    params, σ<span class="dv">2</span> <span class="op">=</span> θ[:<span class="op">-</span><span class="dv">1</span>], θ[<span class="op">-</span><span class="dv">1</span>]</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    Tmin, Tmax <span class="op">=</span> θ[:<span class="dv">2</span>]</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> (<span class="bu">len</span>(rdata) <span class="op">*</span> np.log(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">*</span>σ<span class="dv">2</span>) <span class="op">+</span> np.<span class="bu">sum</span>((rdata </span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                                                    <span class="op">-</span> model(Tdata, <span class="op">*</span>params))<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> σ<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-13" class="cell" data-execution_count="40">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>initial_flex <span class="op">=</span> {drug:[<span class="fl">20.0</span>, <span class="fl">46.5</span>, <span class="fl">0.7</span>, <span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.005</span>] <span class="cf">for</span> drug <span class="kw">in</span> drugs}</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["GEN"] = [20.0, 46.5, 0.5, 0.7, 2.0, 0.005]</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["STR"] = [20.0, 46.5, 0.5, 0.7, 2.0, 0.005]</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["TOB"] = [20.0, 46.5, 0.5, 0.7, 2.0, 0.005]</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["ERY"] = [20.0, 46.5, 0.5, 0.7, 4.0, 0.005]</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["AMP"] = [15.0, 46.5, 0.7, 0.7, 2.0, 0.005]</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>initial_b1 <span class="op">=</span> {drug:[<span class="fl">20.0</span>, <span class="fl">46.5</span>, <span class="fl">3e-4</span>, <span class="fl">0.005</span>] <span class="cf">for</span> drug <span class="kw">in</span> drugs}</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>initial_b2 <span class="op">=</span> {drug:[<span class="fl">20.0</span>, <span class="fl">46.5</span>, <span class="fl">3e-4</span>, <span class="fl">2.0</span>, <span class="fl">0.005</span>] <span class="cf">for</span> drug <span class="kw">in</span> drugs}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-13" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["GEN"] = [20.0, 46.5, 0.5, 0.7, 2.0, 0.005]</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["STR"] = [20.0, 46.5, 0.5, 0.7, 2.0, 0.005]</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["TOB"] = [20.0, 46.5, 0.5, 0.7, 2.0, 0.005]</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["ERY"] = [20.0, 46.5, 0.5, 0.7, 4.0, 0.005]</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_mb["AMP"] = [15.0, 46.5, 0.7, 0.7, 2.0, 0.005]</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>initial_b1 <span class="op">=</span> {drug:[<span class="fl">20.0</span>, <span class="fl">46.5</span>, <span class="fl">3e-4</span>, <span class="fl">0.005</span>] <span class="cf">for</span> drug <span class="kw">in</span> drugs}</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>initial_b2 <span class="op">=</span> {drug:[<span class="fl">20.0</span>, <span class="fl">46.5</span>, <span class="fl">3e-4</span>, <span class="fl">2.0</span>, <span class="fl">0.005</span>] <span class="cf">for</span> drug <span class="kw">in</span> drugs}</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>initial_flex <span class="op">=</span> {drug:[<span class="fl">20.0</span>, <span class="fl">46.5</span>, <span class="fl">0.7</span>, <span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="fl">0.005</span>] <span class="cf">for</span> drug <span class="kw">in</span> drugs}</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>initial_epc <span class="op">=</span> {drug:[<span class="fl">20.0</span>, <span class="fl">46.5</span>, <span class="fl">1.0</span>, <span class="fl">0.05</span>, <span class="fl">0.4</span>, <span class="fl">0.005</span>] <span class="cf">for</span> drug <span class="kw">in</span> drugs}</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>initial_kum <span class="op">=</span> {drug:[<span class="fl">20.0</span>, <span class="fl">46.5</span>, <span class="fl">2.0</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="fl">0.005</span>] <span class="cf">for</span> drug <span class="kw">in</span> drugs}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-14" class="cell" data-execution_count="41">
+<div id="cell-14" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>loo <span class="op">=</span> LeaveOneOut()</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>loo.get_n_splits(abdata[<span class="st">"T"</span>][abdata[<span class="st">"drug1name"</span>] <span class="op">==</span> <span class="st">"WT"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="41">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <pre><code>7</code></pre>
 </div>
 </div>
-<div id="cell-15" class="cell" data-execution_count="42">
+<div id="cell-15" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>initial_flex</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="42">
+<div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>{'AMP': [20.0, 46.5, 0.7, 0.7, 0.2, 0.005],
  'CLI': [20.0, 46.5, 0.7, 0.7, 0.2, 0.005],
  'CPR': [20.0, 46.5, 0.7, 0.7, 0.2, 0.005],
@@ -545,7 +562,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  'WT': [20.0, 46.5, 0.7, 0.7, 0.2, 0.005]}</code></pre>
 </div>
 </div>
-<div id="cell-16" class="cell" data-execution_count="43">
+<div id="cell-16" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> np.arange(<span class="dv">10</span>, <span class="dv">50</span>, <span class="fl">0.001</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">6</span>))</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -569,13 +586,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> initial_flex[drug]</span>
 <span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    plt.plot(T, flexTPC(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"darkgreen"</span>)</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    plt.ylim(<span class="op">-</span><span class="fl">0.025</span>, <span class="fl">0.9</span>)</span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">"Temperature [C]"</span>)</span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"OD"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    plt.title(drug)</span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> initial_epc[drug]</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    plt.plot(T, expprodcurve(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"purple"</span>)</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> initial_kum[drug]</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    plt.plot(T, kumaraswarmy(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"blue"</span>)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    plt.ylim(<span class="op">-</span><span class="fl">0.025</span>, <span class="fl">0.9</span>)</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">"Temperature [C]"</span>)</span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">"OD"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    plt.title(drug)</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -584,11 +606,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cell-17" class="cell" data-execution_count="71">
+<div id="cell-17" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># LOOCV</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> {<span class="st">"flexTPC"</span>:{}, <span class="st">"b1"</span>:{}, <span class="st">"b2"</span>:{}}</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> [<span class="st">"b1"</span>, <span class="st">"b2"</span>, <span class="st">"flexTPC"</span>]</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> {<span class="st">"flexTPC"</span>:{}, <span class="st">"b1"</span>:{}, <span class="st">"b2"</span>:{}, <span class="st">"epc"</span>:{}, <span class="st">"kum"</span>:{}}</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> [<span class="st">"b1"</span>, <span class="st">"b2"</span>, <span class="st">"flexTPC"</span>, <span class="st">"epc"</span>, <span class="st">"kum"</span>]</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>loocv_nll <span class="op">=</span> {model:{drug:[] <span class="cf">for</span> drug <span class="kw">in</span> drugs } <span class="cf">for</span> model <span class="kw">in</span> models}</span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>method <span class="op">=</span> <span class="st">"Nelder-Mead"</span></span>
@@ -634,7 +656,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>                                    (<span class="dv">0</span>, <span class="fl">0.01</span>)],</span>
 <span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>                      args<span class="op">=</span>(Tdata, rdata), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">100000</span>}, method<span class="op">=</span>method)</span>
 <span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> params[<span class="st">"flexTPC"</span>][drug][<span class="st">"x"</span>]</span>
-<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>        loocv_nll[<span class="st">"flexTPC"</span>][drug].append(nloglikab(θ, T_test, r_test, model<span class="op">=</span>flexTPC))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>        loocv_nll[<span class="st">"flexTPC"</span>][drug].append(nloglikab(θ, T_test, r_test, model<span class="op">=</span>flexTPC))</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>        params[<span class="st">"epc"</span>][drug] <span class="op">=</span> minimize(nloglikab, initial_epc[drug],</span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>                                bounds<span class="op">=</span>[(<span class="fl">0.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>                                        (<span class="fl">30.0</span>, <span class="fl">60.0</span>), </span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>                                        (<span class="fl">0.0</span>, np.inf), </span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>                                        (<span class="fl">0.0</span>, np.inf), </span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>                                        (<span class="fl">0.0</span>, np.inf), </span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>                                        (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>                          args<span class="op">=</span>(Tdata, rdata, expprodcurve), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">100000</span>}, method<span class="op">=</span>method)</span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> params[<span class="st">"epc"</span>][drug][<span class="st">"x"</span>]</span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>        loocv_nll[<span class="st">"epc"</span>][drug].append(nloglikab(θ, T_test, r_test, model<span class="op">=</span>expprodcurve))</span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>        params[<span class="st">"kum"</span>][drug] <span class="op">=</span> minimize(nloglikab, initial_kum[drug],</span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>                                        bounds<span class="op">=</span>[(<span class="fl">0.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>                                                (<span class="fl">30.0</span>, <span class="fl">60.0</span>),</span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>                                                (<span class="fl">0.0</span>, np.inf), </span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>                                                (<span class="fl">1.0</span>, np.inf), </span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>                                                (<span class="fl">1.0</span>, np.inf), </span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>                                                (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>                                  args<span class="op">=</span>(Tdata, rdata, kumaraswarmy), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">100000</span>}, method<span class="op">=</span>method)</span>
+<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> params[<span class="st">"kum"</span>][drug][<span class="st">"x"</span>]</span>
+<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>        loocv_nll[<span class="st">"kum"</span>][drug].append(nloglikab(θ, T_test, r_test, model<span class="op">=</span>kumaraswarmy))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>AMP
 numsplits: 7
@@ -645,8 +689,18 @@ numsplits: 7
 ERY
 numsplits: 7
 FOX
-numsplits: 7
-GEN
+numsplits: 7</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_90204/1310441239.py:4: RuntimeWarning: divide by zero encountered in log
+  return 0.5 * (len(rdata) * np.log(2*np.pi*σ2) + np.sum((rdata
+/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_90204/1310441239.py:4: RuntimeWarning: divide by zero encountered in divide
+  return 0.5 * (len(rdata) * np.log(2*np.pi*σ2) + np.sum((rdata
+/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_90204/1310441239.py:4: RuntimeWarning: invalid value encountered in scalar add
+  return 0.5 * (len(rdata) * np.log(2*np.pi*σ2) + np.sum((rdata</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>GEN
 numsplits: 7
 LVX
 numsplits: 7
@@ -657,26 +711,16 @@ numsplits: 7
 TET
 numsplits: 7
 TMP
-numsplits: 7</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14925/1310441239.py:4: RuntimeWarning: divide by zero encountered in log
-  return 0.5 * (len(rdata) * np.log(2*np.pi*σ2) + np.sum((rdata
-/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14925/1310441239.py:4: RuntimeWarning: divide by zero encountered in divide
-  return 0.5 * (len(rdata) * np.log(2*np.pi*σ2) + np.sum((rdata
-/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14925/1310441239.py:4: RuntimeWarning: invalid value encountered in scalar add
-  return 0.5 * (len(rdata) * np.log(2*np.pi*σ2) + np.sum((rdata</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>TOB
+numsplits: 7
+TOB
 numsplits: 7
 WT
 numsplits: 7</code></pre>
 </div>
 </div>
-<div id="cell-18" class="cell" data-execution_count="72">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> {<span class="st">"flexTPC"</span>:{}, <span class="st">"b1"</span>:{}, <span class="st">"b2"</span>:{}}</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> [<span class="st">"b1"</span>, <span class="st">"b2"</span>, <span class="st">"flexTPC"</span>]</span>
+<div id="cell-18" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> {<span class="st">"flexTPC"</span>:{}, <span class="st">"b1"</span>:{}, <span class="st">"b2"</span>:{}, <span class="st">"epc"</span>:{}, <span class="st">"kum"</span>:{}}</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> [<span class="st">"b1"</span>, <span class="st">"b2"</span>, <span class="st">"flexTPC"</span>, <span class="st">"epc"</span>, <span class="st">"kum"</span>]</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>method <span class="op">=</span> <span class="st">"Nelder-Mead"</span></span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, drug <span class="kw">in</span> <span class="bu">enumerate</span>(drugs):</span>
 <span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> abdata[abdata[<span class="st">"drug1name"</span>] <span class="op">==</span> drug]</span>
@@ -705,17 +749,32 @@ numsplits: 7</code></pre>
 <span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>                                    (<span class="fl">0.0</span>, <span class="fl">2.0</span>), </span>
 <span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>                                    (<span class="dv">0</span>, <span class="fl">0.01</span>)],</span>
 <span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>                      args<span class="op">=</span>(Tdata, rdata), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">100000</span>}, method<span class="op">=</span>method)</span>
-<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    params[<span class="st">"epc"</span>][drug] <span class="op">=</span> minimize(nloglikab, initial_epc[drug],</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>                                bounds<span class="op">=</span>[(<span class="fl">0.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>                                        (<span class="fl">30.0</span>, <span class="fl">60.0</span>), </span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>                                        (<span class="fl">0.0</span>, np.inf), </span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>                                        (<span class="fl">0.0</span>, np.inf), </span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>                                        (<span class="fl">0.0</span>, np.inf), </span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>                                        (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>                          args<span class="op">=</span>(Tdata, rdata, expprodcurve), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">100000</span>}, method<span class="op">=</span>method)</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>    params[<span class="st">"kum"</span>][drug] <span class="op">=</span> minimize(nloglikab, initial_kum[drug],</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>                                        bounds<span class="op">=</span>[(<span class="fl">0.0</span>, <span class="fl">20.0</span>), </span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>                                                (<span class="fl">30.0</span>, <span class="fl">60.0</span>),</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>                                                (<span class="fl">0.0</span>, np.inf), </span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>                                                (<span class="fl">1.0</span>, np.inf), </span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>                                                (<span class="fl">1.0</span>, np.inf), </span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>                                                (<span class="dv">0</span>, <span class="fl">1.0</span>)],</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>                                  args<span class="op">=</span>(Tdata, rdata, kumaraswarmy), options<span class="op">=</span>{<span class="st">"maxiter"</span>:<span class="dv">100000</span>}, method<span class="op">=</span>method)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14925/1310441239.py:4: RuntimeWarning: divide by zero encountered in log
+<pre><code>/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_90204/1310441239.py:4: RuntimeWarning: divide by zero encountered in log
   return 0.5 * (len(rdata) * np.log(2*np.pi*σ2) + np.sum((rdata
-/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14925/1310441239.py:4: RuntimeWarning: divide by zero encountered in divide
+/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_90204/1310441239.py:4: RuntimeWarning: divide by zero encountered in divide
   return 0.5 * (len(rdata) * np.log(2*np.pi*σ2) + np.sum((rdata
-/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_14925/1310441239.py:4: RuntimeWarning: invalid value encountered in scalar add
+/var/folders/g8/wjqhnz1n01d5l4pdv8cnykw40000gp/T/ipykernel_90204/1310441239.py:4: RuntimeWarning: invalid value encountered in scalar add
   return 0.5 * (len(rdata) * np.log(2*np.pi*σ2) + np.sum((rdata</code></pre>
 </div>
 </div>
-<div id="cell-19" class="cell" data-execution_count="73">
+<div id="cell-19" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> np.arange(<span class="dv">10</span>, <span class="dv">50</span>, <span class="fl">0.001</span>)</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">5</span>, figsize<span class="op">=</span>(<span class="fl">6.81102</span>, <span class="dv">4</span>), dpi<span class="op">=</span><span class="dv">300</span>, sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -738,56 +797,58 @@ numsplits: 7</code></pre>
 <span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    ax.plot(Tdata, rdata, <span class="st">'^'</span>, markersize<span class="op">=</span><span class="dv">3</span>)</span>
 <span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot fitted curves by Briere.</span></span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">#par = initial_b1[drug]</span></span>
-<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"b1"</span>][drug][<span class="st">"x"</span>]</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"b1"</span>][drug][<span class="st">"x"</span>]</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, briere1(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"firebrick"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
 <span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, briere1(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"firebrick"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">#par = initial_b2[drug]</span></span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"b2"</span>][drug][<span class="st">"x"</span>]</span>
-<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, briere2(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"orange"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>             </span>
-<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"flexTPC"</span>][drug][<span class="st">"x"</span>]</span>
-<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">#par = initial_mb[drug]</span></span>
-<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, flexTPC(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"darkgreen"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim(<span class="op">-</span><span class="fl">0.025</span>, <span class="fl">1.0</span>)</span>
-<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> drug <span class="op">!=</span> <span class="st">'WT'</span>:</span>
-<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>        ax.set_title(drug, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="st">'no drug'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> drug <span class="kw">in</span> (<span class="st">"TMP"</span>, <span class="st">"TOB"</span>, <span class="st">"WT"</span>):</span>
-<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a>        ax.set_xlabel(<span class="st">"Temperature [°C]"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> drug <span class="kw">in</span> (<span class="st">"AMP"</span>, <span class="st">"GEN"</span>, <span class="st">"TMP"</span>):</span>
-<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a>        ax.set_ylabel(<span class="st">"OD"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a>axarr[<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>].axis(<span class="st">"off"</span>)</span>
-<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a>axarr[<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">2</span>].axis(<span class="st">"off"</span>)</span>
-<span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a><span class="co">#ERY</span></span>
-<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a><span class="co">#rect = plt.Rectangle(</span></span>
-<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a><span class="co">#        # (lower-left corner), width, height</span></span>
-<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a><span class="co">#        (0.63, 0.69), 0.18, 0.29, fill=False, color="k", lw=1.5, </span></span>
-<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a><span class="co">#        zorder=1000, transform=fig.transFigure, figure=fig</span></span>
-<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a><span class="co">#    )</span></span>
-<span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a><span class="co">#GEN</span></span>
-<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a><span class="co">#rect2 = plt.Rectangle(</span></span>
-<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a><span class="co">#        # (lower-left corner), width, height</span></span>
-<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a><span class="co">#        (0.04, 0.4), 0.22, 0.29, fill=False, color="k", lw=1.5, </span></span>
-<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a><span class="co">#        zorder=1000, transform=fig.transFigure, figure=fig</span></span>
-<span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a><span class="co">#    )</span></span>
-<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a><span class="co">#fig.patches.extend([rect, rect2])</span></span>
-<span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"abcoli.svg"</span>)</span>
-<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"abcoli.pdf"</span>)</span>
-<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"abcoli.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"b2"</span>][drug][<span class="st">"x"</span>]</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, briere2(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"orange"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>             </span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"flexTPC"</span>][drug][<span class="st">"x"</span>]</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, flexTPC(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"darkgreen"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">#par = params["epc"][drug]["x"]</span></span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax.plot(T, expprodcurve(T, *par[:-1]), color="purple", linewidth=1, alpha=0.8)</span></span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>    <span class="co">#par = params["kum"][drug]["x"]</span></span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax.plot(T, kumaraswarmy(T, *par[:-1]), color="blue", linewidth=1, alpha=0.8)</span></span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim(<span class="op">-</span><span class="fl">0.025</span>, <span class="fl">1.0</span>)</span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> drug <span class="op">!=</span> <span class="st">'WT'</span>:</span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>        ax.set_title(drug, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="st">'no drug'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> drug <span class="kw">in</span> (<span class="st">"TMP"</span>, <span class="st">"TOB"</span>, <span class="st">"WT"</span>):</span>
+<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a>        ax.set_xlabel(<span class="st">"Temperature [°C]"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> drug <span class="kw">in</span> (<span class="st">"AMP"</span>, <span class="st">"GEN"</span>, <span class="st">"TMP"</span>):</span>
+<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a>        ax.set_ylabel(<span class="st">"OD"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a>axarr[<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>].axis(<span class="st">"off"</span>)</span>
+<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a>axarr[<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">2</span>].axis(<span class="st">"off"</span>)</span>
+<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a><span class="co">#ERY</span></span>
+<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a><span class="co">#rect = plt.Rectangle(</span></span>
+<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a><span class="co">#        # (lower-left corner), width, height</span></span>
+<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a><span class="co">#        (0.63, 0.69), 0.18, 0.29, fill=False, color="k", lw=1.5, </span></span>
+<span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a><span class="co">#        zorder=1000, transform=fig.transFigure, figure=fig</span></span>
+<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a><span class="co">#    )</span></span>
+<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a><span class="co">#GEN</span></span>
+<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a><span class="co">#rect2 = plt.Rectangle(</span></span>
+<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a><span class="co">#        # (lower-left corner), width, height</span></span>
+<span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a><span class="co">#        (0.04, 0.4), 0.22, 0.29, fill=False, color="k", lw=1.5, </span></span>
+<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a><span class="co">#        zorder=1000, transform=fig.transFigure, figure=fig</span></span>
+<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a><span class="co">#    )</span></span>
+<span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a><span class="co">#fig.patches.extend([rect, rect2])</span></span>
+<span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"abcoli.svg"</span>)</span>
+<span id="cb24-73"><a href="#cb24-73" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"abcoli.pdf"</span>)</span>
+<span id="cb24-74"><a href="#cb24-74" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"abcoli.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -796,27 +857,107 @@ numsplits: 7</code></pre>
 </div>
 </div>
 </div>
-<div id="cell-20" class="cell" data-execution_count="83">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>n_params <span class="op">=</span> {<span class="st">'b1'</span>:<span class="dv">4</span>, <span class="st">'b2'</span>:<span class="dv">5</span>, <span class="st">'flexTPC'</span>:<span class="dv">6</span>} <span class="co"># Includes standard deviation.</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>param_matrix <span class="op">=</span> {model:np.zeros((<span class="dv">13</span>, n_params[model])) <span class="cf">for</span> model <span class="kw">in</span> models}</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> models:</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, drug <span class="kw">in</span> <span class="bu">enumerate</span>(drugs):</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>        param_matrix[model][i, ] <span class="op">=</span> params[model][drug][<span class="st">"x"</span>]</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>colnames <span class="op">=</span> {<span class="st">'b1'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'c'</span>, <span class="st">'sigma2'</span>],</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">'b2'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'c'</span>, <span class="st">'m'</span>, <span class="st">'sigma2'</span>],</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">'flexTPC'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'rmax'</span>, <span class="st">'alpha'</span>, <span class="st">'beta'</span>, <span class="st">'sigma2'</span>]}</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>param_df <span class="op">=</span> {model:pd.DataFrame(param_matrix[model], columns<span class="op">=</span>colnames[model]) <span class="cf">for</span> model <span class="kw">in</span> models}</span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> models:</span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    param_df[model][<span class="st">'drug'</span>] <span class="op">=</span> drugs</span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    param_df[model] <span class="op">=</span> param_df[model][[<span class="st">'drug'</span>] <span class="op">+</span> colnames[model]]</span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    param_df[model].to_csv(<span class="ss">f'abcoli_params_</span><span class="sc">{</span>model<span class="sc">}</span><span class="ss">.csv'</span>, index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-20" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> np.arange(<span class="dv">10</span>, <span class="dv">50</span>, <span class="fl">0.001</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>fig, axarr <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">5</span>, figsize<span class="op">=</span>(<span class="fl">6.81102</span>, <span class="dv">4</span>), dpi<span class="op">=</span><span class="dv">300</span>, sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>plt.rcParams.update({<span class="st">'font.size'</span>: <span class="dv">8</span>})</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, drug <span class="kw">in</span> <span class="bu">enumerate</span>(drugs):</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> axarr[i <span class="op">//</span> <span class="dv">5</span>, i <span class="op">%</span> <span class="dv">5</span>]</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    subset <span class="op">=</span> abdata[abdata[<span class="st">"drug1name"</span>] <span class="op">==</span> drug]</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">50</span>])</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    ax.set_yticks([<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dv">1</span>])</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.subplot(3, 5, i+1)</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot datapoints.</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    Tdata <span class="op">=</span> subset[<span class="st">"T"</span>]</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    rdata <span class="op">=</span> subset[<span class="st">"OD"</span>]</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    ax.plot(Tdata, rdata, <span class="st">'^'</span>, markersize<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>             </span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"epc"</span>][drug][<span class="st">"x"</span>]</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, expprodcurve(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"purple"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"kum"</span>][drug][<span class="st">"x"</span>]</span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, kumaraswarmy(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"blue"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>    par <span class="op">=</span> params[<span class="st">"flexTPC"</span>][drug][<span class="st">"x"</span>]</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>    ax.plot(T, flexTPC(T, <span class="op">*</span>par[:<span class="op">-</span><span class="dv">1</span>]), color<span class="op">=</span><span class="st">"darkgreen"</span>, linewidth<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim(<span class="op">-</span><span class="fl">0.025</span>, <span class="fl">1.0</span>)</span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> drug <span class="op">!=</span> <span class="st">'WT'</span>:</span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>        ax.set_title(drug, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="st">'no drug'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> drug <span class="kw">in</span> (<span class="st">"TMP"</span>, <span class="st">"TOB"</span>, <span class="st">"WT"</span>):</span>
+<span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a>        ax.set_xlabel(<span class="st">"Temperature [°C]"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb25-43"><a href="#cb25-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> drug <span class="kw">in</span> (<span class="st">"AMP"</span>, <span class="st">"GEN"</span>, <span class="st">"TMP"</span>):</span>
+<span id="cb25-44"><a href="#cb25-44" aria-hidden="true" tabindex="-1"></a>        ax.set_ylabel(<span class="st">"OD"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb25-45"><a href="#cb25-45" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb25-46"><a href="#cb25-46" aria-hidden="true" tabindex="-1"></a>axarr[<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>].axis(<span class="st">"off"</span>)</span>
+<span id="cb25-47"><a href="#cb25-47" aria-hidden="true" tabindex="-1"></a>axarr[<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">2</span>].axis(<span class="st">"off"</span>)</span>
+<span id="cb25-48"><a href="#cb25-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-49"><a href="#cb25-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-50"><a href="#cb25-50" aria-hidden="true" tabindex="-1"></a><span class="co">#ERY</span></span>
+<span id="cb25-51"><a href="#cb25-51" aria-hidden="true" tabindex="-1"></a><span class="co">#rect = plt.Rectangle(</span></span>
+<span id="cb25-52"><a href="#cb25-52" aria-hidden="true" tabindex="-1"></a><span class="co">#        # (lower-left corner), width, height</span></span>
+<span id="cb25-53"><a href="#cb25-53" aria-hidden="true" tabindex="-1"></a><span class="co">#        (0.63, 0.69), 0.18, 0.29, fill=False, color="k", lw=1.5, </span></span>
+<span id="cb25-54"><a href="#cb25-54" aria-hidden="true" tabindex="-1"></a><span class="co">#        zorder=1000, transform=fig.transFigure, figure=fig</span></span>
+<span id="cb25-55"><a href="#cb25-55" aria-hidden="true" tabindex="-1"></a><span class="co">#    )</span></span>
+<span id="cb25-56"><a href="#cb25-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-57"><a href="#cb25-57" aria-hidden="true" tabindex="-1"></a><span class="co">#GEN</span></span>
+<span id="cb25-58"><a href="#cb25-58" aria-hidden="true" tabindex="-1"></a><span class="co">#rect2 = plt.Rectangle(</span></span>
+<span id="cb25-59"><a href="#cb25-59" aria-hidden="true" tabindex="-1"></a><span class="co">#        # (lower-left corner), width, height</span></span>
+<span id="cb25-60"><a href="#cb25-60" aria-hidden="true" tabindex="-1"></a><span class="co">#        (0.04, 0.4), 0.22, 0.29, fill=False, color="k", lw=1.5, </span></span>
+<span id="cb25-61"><a href="#cb25-61" aria-hidden="true" tabindex="-1"></a><span class="co">#        zorder=1000, transform=fig.transFigure, figure=fig</span></span>
+<span id="cb25-62"><a href="#cb25-62" aria-hidden="true" tabindex="-1"></a><span class="co">#    )</span></span>
+<span id="cb25-63"><a href="#cb25-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-64"><a href="#cb25-64" aria-hidden="true" tabindex="-1"></a><span class="co">#fig.patches.extend([rect, rect2])</span></span>
+<span id="cb25-65"><a href="#cb25-65" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb25-66"><a href="#cb25-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-67"><a href="#cb25-67" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"abcoli_pc_kum.svg"</span>)</span>
+<span id="cb25-68"><a href="#cb25-68" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"abcoli_pc_kum.pdf"</span>)</span>
+<span id="cb25-69"><a href="#cb25-69" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"abcoli_pc_kum.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Abcoli_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
 </div>
-<div id="cell-21" class="cell" data-execution_count="75">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>param_df[<span class="st">'flexTPC'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="75">
+</div>
+</div>
+<div id="cell-21" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>n_params <span class="op">=</span> {<span class="st">'b1'</span>:<span class="dv">4</span>, <span class="st">'b2'</span>:<span class="dv">5</span>, <span class="st">'flexTPC'</span>:<span class="dv">6</span>, <span class="st">'epc'</span>:<span class="dv">6</span>, <span class="st">'kum'</span>:<span class="dv">6</span>} <span class="co"># Includes standard deviation.</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>param_matrix <span class="op">=</span> {model:np.zeros((<span class="dv">13</span>, n_params[model])) <span class="cf">for</span> model <span class="kw">in</span> models}</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> models:</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, drug <span class="kw">in</span> <span class="bu">enumerate</span>(drugs):</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        param_matrix[model][i, ] <span class="op">=</span> params[model][drug][<span class="st">"x"</span>]</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>colnames <span class="op">=</span> {<span class="st">'b1'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'c'</span>, <span class="st">'sigma2'</span>],</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">'b2'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'c'</span>, <span class="st">'m'</span>, <span class="st">'sigma2'</span>],</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">'flexTPC'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'rmax'</span>, <span class="st">'alpha'</span>, <span class="st">'beta'</span>, <span class="st">'sigma2'</span>],</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>           <span class="st">'epc'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'c'</span>, <span class="st">'kI'</span>, <span class="st">'kU'</span>, <span class="st">'sigma2'</span>],</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>           <span class="st">'kum'</span>:[<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'c'</span>, <span class="st">'a'</span>, <span class="st">'b'</span>, <span class="st">'sigma2'</span>]}</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>param_df <span class="op">=</span> {model:pd.DataFrame(param_matrix[model], columns<span class="op">=</span>colnames[model]) <span class="cf">for</span> model <span class="kw">in</span> models}</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> models:</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    param_df[model][<span class="st">'drug'</span>] <span class="op">=</span> drugs</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    param_df[model] <span class="op">=</span> param_df[model][[<span class="st">'drug'</span>] <span class="op">+</span> colnames[model]]</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    param_df[model].to_csv(<span class="ss">f'abcoli_params_</span><span class="sc">{</span>model<span class="sc">}</span><span class="ss">.csv'</span>, index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-22" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>param_df[<span class="st">'epc'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 
 
@@ -827,9 +968,9 @@ numsplits: 7</code></pre>
 <th data-quarto-table-cell-role="th">drug</th>
 <th data-quarto-table-cell-role="th">Tmin</th>
 <th data-quarto-table-cell-role="th">Tmax</th>
-<th data-quarto-table-cell-role="th">rmax</th>
-<th data-quarto-table-cell-role="th">alpha</th>
-<th data-quarto-table-cell-role="th">beta</th>
+<th data-quarto-table-cell-role="th">c</th>
+<th data-quarto-table-cell-role="th">kI</th>
+<th data-quarto-table-cell-role="th">kU</th>
 <th data-quarto-table-cell-role="th">sigma2</th>
 </tr>
 </thead>
@@ -838,131 +979,131 @@ numsplits: 7</code></pre>
 <td data-quarto-table-cell-role="th">0</td>
 <td>AMP</td>
 <td>20.0</td>
-<td>44.000003</td>
-<td>0.756763</td>
-<td>0.642037</td>
-<td>0.437539</td>
-<td>0.000913</td>
+<td>44.007843</td>
+<td>0.824156</td>
+<td>1.614674e-01</td>
+<td>0.493304</td>
+<td>0.001229</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
 <td>CLI</td>
 <td>20.0</td>
-<td>44.000031</td>
-<td>0.661223</td>
-<td>0.765370</td>
-<td>0.387482</td>
-<td>0.002158</td>
+<td>44.054805</td>
+<td>0.866008</td>
+<td>8.242660e-02</td>
+<td>0.713136</td>
+<td>0.001949</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
 <td>CPR</td>
 <td>20.0</td>
-<td>44.195263</td>
-<td>0.845881</td>
-<td>0.795025</td>
-<td>0.243240</td>
-<td>0.001969</td>
+<td>44.000001</td>
+<td>71240.939870</td>
+<td>5.623456e-07</td>
+<td>180349.336808</td>
+<td>0.007429</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
 <td>ERY</td>
 <td>20.0</td>
-<td>60.000000</td>
-<td>0.514508</td>
-<td>0.465700</td>
-<td>0.097313</td>
-<td>0.005200</td>
+<td>44.000002</td>
+<td>138202.531337</td>
+<td>1.494974e-07</td>
+<td>95836.460775</td>
+<td>0.016318</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
 <td>FOX</td>
 <td>20.0</td>
-<td>44.000001</td>
-<td>0.558624</td>
-<td>0.880069</td>
-<td>0.352395</td>
-<td>0.000517</td>
+<td>44.322608</td>
+<td>0.850540</td>
+<td>5.915439e-02</td>
+<td>0.712125</td>
+<td>0.000682</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
 <td>GEN</td>
 <td>20.0</td>
-<td>44.000000</td>
-<td>0.358805</td>
-<td>0.574757</td>
-<td>0.617911</td>
-<td>0.001757</td>
+<td>43.586791</td>
+<td>0.336935</td>
+<td>4.717883e-01</td>
+<td>13.322271</td>
+<td>0.001133</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">6</td>
 <td>LVX</td>
 <td>20.0</td>
-<td>44.026381</td>
-<td>0.823561</td>
-<td>0.788428</td>
-<td>0.362861</td>
-<td>0.001786</td>
+<td>44.356000</td>
+<td>1.096169</td>
+<td>7.229880e-02</td>
+<td>0.930030</td>
+<td>0.001773</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">7</td>
 <td>NTR</td>
 <td>20.0</td>
-<td>44.000001</td>
-<td>0.768543</td>
-<td>0.769126</td>
-<td>0.313968</td>
-<td>0.000812</td>
+<td>44.005670</td>
+<td>1665.495450</td>
+<td>2.757200e-05</td>
+<td>0.455426</td>
+<td>0.001853</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">8</td>
 <td>STR</td>
 <td>20.0</td>
-<td>44.000015</td>
-<td>0.425230</td>
-<td>0.604259</td>
-<td>0.500803</td>
-<td>0.001711</td>
+<td>44.010421</td>
+<td>0.397158</td>
+<td>3.059134e-01</td>
+<td>0.961540</td>
+<td>0.001156</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">9</td>
 <td>TET</td>
 <td>20.0</td>
-<td>44.001389</td>
-<td>0.712707</td>
-<td>0.872408</td>
-<td>0.331231</td>
-<td>0.001259</td>
+<td>44.694587</td>
+<td>1.443680</td>
+<td>3.744536e-02</td>
+<td>0.612516</td>
+<td>0.001204</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">10</td>
 <td>TMP</td>
 <td>20.0</td>
-<td>43.999978</td>
-<td>0.680682</td>
-<td>0.781958</td>
-<td>0.377130</td>
-<td>0.000328</td>
+<td>43.175693</td>
+<td>0.890553</td>
+<td>7.821355e-02</td>
+<td>1.202987</td>
+<td>0.000335</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">11</td>
 <td>TOB</td>
 <td>20.0</td>
-<td>44.000006</td>
-<td>0.476745</td>
-<td>0.624377</td>
-<td>0.473043</td>
-<td>0.000884</td>
+<td>44.008580</td>
+<td>0.464558</td>
+<td>2.443800e-01</td>
+<td>0.697478</td>
+<td>0.000537</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">12</td>
 <td>WT</td>
 <td>20.0</td>
-<td>44.003304</td>
-<td>0.793973</td>
-<td>0.852714</td>
-<td>0.436919</td>
-<td>0.000283</td>
+<td>44.106355</td>
+<td>0.815505</td>
+<td>1.522118e-01</td>
+<td>7.663247</td>
+<td>0.000530</td>
 </tr>
 </tbody>
 </table>
@@ -970,25 +1111,25 @@ numsplits: 7</code></pre>
 </div>
 </div>
 </div>
-<div id="cell-22" class="cell" data-execution_count="76">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>nll <span class="op">=</span> np.zeros((<span class="bu">len</span>(drugs), <span class="bu">len</span>(models)))</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>aic <span class="op">=</span> np.zeros((<span class="bu">len</span>(drugs), <span class="bu">len</span>(models)))</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>bic <span class="op">=</span> np.zeros((<span class="bu">len</span>(drugs), <span class="bu">len</span>(models)))</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>loo_nll <span class="op">=</span> np.zeros((<span class="bu">len</span>(drugs), <span class="bu">len</span>(models)))</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> [<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>] <span class="co"># Number of parameters.</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">7</span> <span class="co"># Number of datapoints.</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, d <span class="kw">in</span> <span class="bu">enumerate</span>(drugs):</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j, m <span class="kw">in</span> <span class="bu">enumerate</span>(models): </span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        nll[i, j] <span class="op">=</span> params[m][d][<span class="st">"fun"</span>]</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>        aic[i, j] <span class="op">=</span> AIC(nll[i, j], p[j])</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>        bic[i, j] <span class="op">=</span> BIC(nll[i, j], n, p[j])</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>        loo_nll[i, j] <span class="op">=</span> np.mean(loocv_nll[m][d])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-23" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>nll <span class="op">=</span> np.zeros((<span class="bu">len</span>(drugs), <span class="bu">len</span>(models)))</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>aic <span class="op">=</span> np.zeros((<span class="bu">len</span>(drugs), <span class="bu">len</span>(models)))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>bic <span class="op">=</span> np.zeros((<span class="bu">len</span>(drugs), <span class="bu">len</span>(models)))</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>loo_nll <span class="op">=</span> np.zeros((<span class="bu">len</span>(drugs), <span class="bu">len</span>(models)))</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> [<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">6</span>, <span class="dv">6</span>] <span class="co"># Number of parameters.</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">7</span> <span class="co"># Number of datapoints.</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, d <span class="kw">in</span> <span class="bu">enumerate</span>(drugs):</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j, m <span class="kw">in</span> <span class="bu">enumerate</span>(models): </span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>        nll[i, j] <span class="op">=</span> params[m][d][<span class="st">"fun"</span>]</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>        aic[i, j] <span class="op">=</span> AIC(nll[i, j], p[j])</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>        bic[i, j] <span class="op">=</span> BIC(nll[i, j], n, p[j])</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>        loo_nll[i, j] <span class="op">=</span> np.mean(loocv_nll[m][d])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-23" class="cell" data-execution_count="77">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>drugs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="77">
+<div id="cell-24" class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>drugs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="34">
 <pre><code>['AMP',
  'CLI',
  'CPR',
@@ -1004,9 +1145,9 @@ numsplits: 7</code></pre>
  'WT']</code></pre>
 </div>
 </div>
-<div id="cell-24" class="cell" data-execution_count="78">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> drug <span class="kw">in</span> drugs:</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(drug, np.<span class="bu">round</span>(params[<span class="st">"flexTPC"</span>][drug][<span class="st">"x"</span>], <span class="dv">3</span>) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-25" class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> drug <span class="kw">in</span> drugs:</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(drug, np.<span class="bu">round</span>(params[<span class="st">"flexTPC"</span>][drug][<span class="st">"x"</span>], <span class="dv">3</span>) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>AMP [2.00e+01 4.40e+01 7.57e-01 6.42e-01 4.38e-01 1.00e-03]
 CLI [2.00e+01 4.40e+01 6.61e-01 7.65e-01 3.87e-01 2.00e-03]
@@ -1023,14 +1164,14 @@ TOB [2.00e+01 4.40e+01 4.77e-01 6.24e-01 4.73e-01 1.00e-03]
 WT [20.    44.003  0.794  0.853  0.437  0.   ]</code></pre>
 </div>
 </div>
-<div id="cell-25" class="cell" data-execution_count="79">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>dfAIC <span class="op">=</span> pd.DataFrame(np.<span class="bu">round</span>(aic, <span class="dv">2</span>), columns<span class="op">=</span>models, index<span class="op">=</span>drugs)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>dfBIC <span class="op">=</span> pd.DataFrame(np.<span class="bu">round</span>(bic, <span class="dv">2</span>), columns<span class="op">=</span>models, index<span class="op">=</span>drugs)</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>dfLOOCV <span class="op">=</span> pd.DataFrame(np.<span class="bu">round</span>(loo_nll, <span class="dv">2</span>), columns<span class="op">=</span>models, index<span class="op">=</span>drugs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-26" class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>dfAIC <span class="op">=</span> pd.DataFrame(np.<span class="bu">round</span>(aic, <span class="dv">2</span>), columns<span class="op">=</span>models, index<span class="op">=</span>drugs)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>dfBIC <span class="op">=</span> pd.DataFrame(np.<span class="bu">round</span>(bic, <span class="dv">2</span>), columns<span class="op">=</span>models, index<span class="op">=</span>drugs)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>dfLOOCV <span class="op">=</span> pd.DataFrame(np.<span class="bu">round</span>(loo_nll, <span class="dv">2</span>), columns<span class="op">=</span>models, index<span class="op">=</span>drugs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-26" class="cell" data-execution_count="80">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>dfAIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="80">
+<div id="cell-27" class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>dfAIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="37">
 <div>
 
 
@@ -1041,6 +1182,8 @@ WT [20.    44.003  0.794  0.853  0.437  0.   ]</code></pre>
 <th data-quarto-table-cell-role="th">b1</th>
 <th data-quarto-table-cell-role="th">b2</th>
 <th data-quarto-table-cell-role="th">flexTPC</th>
+<th data-quarto-table-cell-role="th">epc</th>
+<th data-quarto-table-cell-role="th">kum</th>
 </tr>
 </thead>
 <tbody>
@@ -1049,78 +1192,104 @@ WT [20.    44.003  0.794  0.853  0.437  0.   ]</code></pre>
 <td>-5.56</td>
 <td>-8.64</td>
 <td>-17.12</td>
+<td>-15.04</td>
+<td>-16.95</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">CLI</td>
 <td>-11.98</td>
 <td>-10.51</td>
 <td>-11.38</td>
+<td>-11.82</td>
+<td>-11.20</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">CPR</td>
 <td>-2.92</td>
 <td>-7.16</td>
 <td>-11.75</td>
+<td>-2.45</td>
+<td>-11.03</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ERY</td>
 <td>3.28</td>
 <td>0.25</td>
 <td>-4.95</td>
+<td>3.06</td>
+<td>-3.54</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">FOX</td>
 <td>-18.14</td>
 <td>-16.31</td>
 <td>-21.11</td>
+<td>-19.17</td>
+<td>-21.33</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">GEN</td>
 <td>-3.16</td>
 <td>-3.96</td>
 <td>-11.56</td>
+<td>-15.61</td>
+<td>-5.99</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">LVX</td>
 <td>-12.93</td>
 <td>-10.96</td>
 <td>-12.43</td>
+<td>-12.48</td>
+<td>-11.90</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">NTR</td>
 <td>-16.03</td>
 <td>-16.47</td>
 <td>-17.42</td>
+<td>-12.17</td>
+<td>-16.31</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">STR</td>
 <td>-5.39</td>
 <td>-7.42</td>
 <td>-12.87</td>
+<td>-15.47</td>
+<td>-12.54</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">TET</td>
 <td>-15.07</td>
 <td>-13.83</td>
 <td>-14.88</td>
+<td>-15.19</td>
+<td>-10.33</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">TMP</td>
 <td>-18.63</td>
 <td>-16.74</td>
 <td>-24.29</td>
+<td>-24.14</td>
+<td>-23.32</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">TOB</td>
 <td>-7.15</td>
 <td>-9.40</td>
 <td>-17.35</td>
+<td>-20.84</td>
+<td>-16.76</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">WT</td>
 <td>-5.49</td>
 <td>-6.43</td>
 <td>-25.33</td>
+<td>-20.93</td>
+<td>-25.23</td>
 </tr>
 </tbody>
 </table>
@@ -1128,9 +1297,9 @@ WT [20.    44.003  0.794  0.853  0.437  0.   ]</code></pre>
 </div>
 </div>
 </div>
-<div id="cell-27" class="cell" data-execution_count="81">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>dfBIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="81">
+<div id="cell-28" class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>dfBIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="38">
 <div>
 
 
@@ -1141,6 +1310,8 @@ WT [20.    44.003  0.794  0.853  0.437  0.   ]</code></pre>
 <th data-quarto-table-cell-role="th">b1</th>
 <th data-quarto-table-cell-role="th">b2</th>
 <th data-quarto-table-cell-role="th">flexTPC</th>
+<th data-quarto-table-cell-role="th">epc</th>
+<th data-quarto-table-cell-role="th">kum</th>
 </tr>
 </thead>
 <tbody>
@@ -1149,78 +1320,104 @@ WT [20.    44.003  0.794  0.853  0.437  0.   ]</code></pre>
 <td>-5.78</td>
 <td>-8.91</td>
 <td>-17.45</td>
+<td>-15.37</td>
+<td>-17.27</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">CLI</td>
 <td>-12.19</td>
 <td>-10.78</td>
 <td>-11.70</td>
+<td>-12.14</td>
+<td>-11.52</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">CPR</td>
 <td>-3.14</td>
 <td>-7.43</td>
 <td>-12.07</td>
+<td>-2.77</td>
+<td>-11.35</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ERY</td>
 <td>3.07</td>
 <td>-0.02</td>
 <td>-5.27</td>
+<td>2.73</td>
+<td>-3.87</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">FOX</td>
 <td>-18.35</td>
 <td>-16.58</td>
 <td>-21.43</td>
+<td>-19.49</td>
+<td>-21.66</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">GEN</td>
 <td>-3.38</td>
 <td>-4.23</td>
 <td>-11.88</td>
+<td>-15.94</td>
+<td>-6.31</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">LVX</td>
 <td>-13.15</td>
 <td>-11.23</td>
 <td>-12.75</td>
+<td>-12.81</td>
+<td>-12.22</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">NTR</td>
 <td>-16.25</td>
 <td>-16.74</td>
 <td>-17.74</td>
+<td>-12.49</td>
+<td>-16.64</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">STR</td>
 <td>-5.61</td>
 <td>-7.69</td>
 <td>-13.19</td>
+<td>-15.80</td>
+<td>-12.87</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">TET</td>
 <td>-15.28</td>
 <td>-14.10</td>
 <td>-15.20</td>
+<td>-15.51</td>
+<td>-10.65</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">TMP</td>
 <td>-18.85</td>
 <td>-17.01</td>
 <td>-24.61</td>
+<td>-24.47</td>
+<td>-23.64</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">TOB</td>
 <td>-7.37</td>
 <td>-9.67</td>
 <td>-17.68</td>
+<td>-21.16</td>
+<td>-17.09</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">WT</td>
 <td>-5.70</td>
 <td>-6.70</td>
 <td>-25.65</td>
+<td>-21.26</td>
+<td>-25.56</td>
 </tr>
 </tbody>
 </table>
@@ -1228,9 +1425,529 @@ WT [20.    44.003  0.794  0.853  0.437  0.   ]</code></pre>
 </div>
 </div>
 </div>
-<div id="cell-28" class="cell" data-execution_count="82">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>dfLOOCV</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="82">
+<div id="cell-29" class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>dfLOOCV</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="44">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">b1</th>
+<th data-quarto-table-cell-role="th">b2</th>
+<th data-quarto-table-cell-role="th">flexTPC</th>
+<th data-quarto-table-cell-role="th">epc</th>
+<th data-quarto-table-cell-role="th">kum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">AMP</td>
+<td>-0.97</td>
+<td>-1.33</td>
+<td>-2.08</td>
+<td>-1.93</td>
+<td>-2.07</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">CLI</td>
+<td>-1.43</td>
+<td>-1.47</td>
+<td>-1.67</td>
+<td>-1.70</td>
+<td>-1.66</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">CPR</td>
+<td>-0.78</td>
+<td>-1.23</td>
+<td>-1.70</td>
+<td>-1.03</td>
+<td>-1.64</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">ERY</td>
+<td>-0.34</td>
+<td>-0.70</td>
+<td>-1.21</td>
+<td>-0.64</td>
+<td>-1.11</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">FOX</td>
+<td>-1.87</td>
+<td>-1.88</td>
+<td>-2.36</td>
+<td>-2.23</td>
+<td>-2.38</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">GEN</td>
+<td>-0.80</td>
+<td>-1.00</td>
+<td>-1.68</td>
+<td>-1.97</td>
+<td>-1.28</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">LVX</td>
+<td>-1.50</td>
+<td>-1.50</td>
+<td>-1.74</td>
+<td>-1.75</td>
+<td>-1.71</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">NTR</td>
+<td>-1.72</td>
+<td>-1.89</td>
+<td>-2.10</td>
+<td>-1.73</td>
+<td>-2.02</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">STR</td>
+<td>-0.96</td>
+<td>-1.24</td>
+<td>-1.78</td>
+<td>-1.96</td>
+<td>-1.75</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">TET</td>
+<td>-1.65</td>
+<td>-1.70</td>
+<td>-1.92</td>
+<td>-1.94</td>
+<td>-1.59</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">TMP</td>
+<td>-1.90</td>
+<td>-1.91</td>
+<td>-2.59</td>
+<td>-2.58</td>
+<td>-2.52</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">TOB</td>
+<td>-1.08</td>
+<td>-1.39</td>
+<td>-2.10</td>
+<td>-2.35</td>
+<td>-2.05</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">WT</td>
+<td>-0.96</td>
+<td>-1.17</td>
+<td>-2.67</td>
+<td>-2.35</td>
+<td>-2.66</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-30" class="cell" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_delta(df):</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">'''</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Turns results into difference relative to best model.</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co">    '''</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    best <span class="op">=</span> np.<span class="bu">min</span>(df, axis<span class="op">=</span><span class="dv">1</span>) </span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span>(df.subtract(np.<span class="bu">min</span>(df, axis<span class="op">=</span><span class="dv">1</span>), axis<span class="op">=</span><span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-31" class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>get_delta(dfAIC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="45">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">b1</th>
+<th data-quarto-table-cell-role="th">b2</th>
+<th data-quarto-table-cell-role="th">flexTPC</th>
+<th data-quarto-table-cell-role="th">epc</th>
+<th data-quarto-table-cell-role="th">kum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">AMP</td>
+<td>11.56</td>
+<td>8.48</td>
+<td>0.00</td>
+<td>2.08</td>
+<td>0.17</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">CLI</td>
+<td>0.00</td>
+<td>1.47</td>
+<td>0.60</td>
+<td>0.16</td>
+<td>0.78</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">CPR</td>
+<td>8.83</td>
+<td>4.59</td>
+<td>0.00</td>
+<td>9.30</td>
+<td>0.72</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">ERY</td>
+<td>8.23</td>
+<td>5.20</td>
+<td>0.00</td>
+<td>8.01</td>
+<td>1.41</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">FOX</td>
+<td>3.19</td>
+<td>5.02</td>
+<td>0.22</td>
+<td>2.16</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">GEN</td>
+<td>12.45</td>
+<td>11.65</td>
+<td>4.05</td>
+<td>0.00</td>
+<td>9.62</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">LVX</td>
+<td>0.00</td>
+<td>1.97</td>
+<td>0.50</td>
+<td>0.45</td>
+<td>1.03</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">NTR</td>
+<td>1.39</td>
+<td>0.95</td>
+<td>0.00</td>
+<td>5.25</td>
+<td>1.11</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">STR</td>
+<td>10.08</td>
+<td>8.05</td>
+<td>2.60</td>
+<td>0.00</td>
+<td>2.93</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">TET</td>
+<td>0.12</td>
+<td>1.36</td>
+<td>0.31</td>
+<td>0.00</td>
+<td>4.86</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">TMP</td>
+<td>5.66</td>
+<td>7.55</td>
+<td>0.00</td>
+<td>0.15</td>
+<td>0.97</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">TOB</td>
+<td>13.69</td>
+<td>11.44</td>
+<td>3.49</td>
+<td>0.00</td>
+<td>4.08</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">WT</td>
+<td>19.84</td>
+<td>18.90</td>
+<td>0.00</td>
+<td>4.40</td>
+<td>0.10</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-32" class="cell" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>get_delta(dfBIC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="46">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">b1</th>
+<th data-quarto-table-cell-role="th">b2</th>
+<th data-quarto-table-cell-role="th">flexTPC</th>
+<th data-quarto-table-cell-role="th">epc</th>
+<th data-quarto-table-cell-role="th">kum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">AMP</td>
+<td>11.67</td>
+<td>8.54</td>
+<td>0.00</td>
+<td>2.08</td>
+<td>0.18</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">CLI</td>
+<td>0.00</td>
+<td>1.41</td>
+<td>0.49</td>
+<td>0.05</td>
+<td>0.67</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">CPR</td>
+<td>8.93</td>
+<td>4.64</td>
+<td>0.00</td>
+<td>9.30</td>
+<td>0.72</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">ERY</td>
+<td>8.34</td>
+<td>5.25</td>
+<td>0.00</td>
+<td>8.00</td>
+<td>1.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">FOX</td>
+<td>3.31</td>
+<td>5.08</td>
+<td>0.23</td>
+<td>2.17</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">GEN</td>
+<td>12.56</td>
+<td>11.71</td>
+<td>4.06</td>
+<td>0.00</td>
+<td>9.63</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">LVX</td>
+<td>0.00</td>
+<td>1.92</td>
+<td>0.40</td>
+<td>0.34</td>
+<td>0.93</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">NTR</td>
+<td>1.49</td>
+<td>1.00</td>
+<td>0.00</td>
+<td>5.25</td>
+<td>1.10</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">STR</td>
+<td>10.19</td>
+<td>8.11</td>
+<td>2.61</td>
+<td>0.00</td>
+<td>2.93</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">TET</td>
+<td>0.23</td>
+<td>1.41</td>
+<td>0.31</td>
+<td>0.00</td>
+<td>4.86</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">TMP</td>
+<td>5.76</td>
+<td>7.60</td>
+<td>0.00</td>
+<td>0.14</td>
+<td>0.97</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">TOB</td>
+<td>13.79</td>
+<td>11.49</td>
+<td>3.48</td>
+<td>0.00</td>
+<td>4.07</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">WT</td>
+<td>19.95</td>
+<td>18.95</td>
+<td>0.00</td>
+<td>4.39</td>
+<td>0.09</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-33" class="cell" data-execution_count="47">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>get_delta(dfLOOCV)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="47">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">b1</th>
+<th data-quarto-table-cell-role="th">b2</th>
+<th data-quarto-table-cell-role="th">flexTPC</th>
+<th data-quarto-table-cell-role="th">epc</th>
+<th data-quarto-table-cell-role="th">kum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">AMP</td>
+<td>1.11</td>
+<td>0.75</td>
+<td>0.00</td>
+<td>0.15</td>
+<td>0.01</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">CLI</td>
+<td>0.27</td>
+<td>0.23</td>
+<td>0.03</td>
+<td>0.00</td>
+<td>0.04</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">CPR</td>
+<td>0.92</td>
+<td>0.47</td>
+<td>0.00</td>
+<td>0.67</td>
+<td>0.06</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">ERY</td>
+<td>0.87</td>
+<td>0.51</td>
+<td>0.00</td>
+<td>0.57</td>
+<td>0.10</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">FOX</td>
+<td>0.51</td>
+<td>0.50</td>
+<td>0.02</td>
+<td>0.15</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">GEN</td>
+<td>1.17</td>
+<td>0.97</td>
+<td>0.29</td>
+<td>0.00</td>
+<td>0.69</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">LVX</td>
+<td>0.25</td>
+<td>0.25</td>
+<td>0.01</td>
+<td>0.00</td>
+<td>0.04</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">NTR</td>
+<td>0.38</td>
+<td>0.21</td>
+<td>0.00</td>
+<td>0.37</td>
+<td>0.08</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">STR</td>
+<td>1.00</td>
+<td>0.72</td>
+<td>0.18</td>
+<td>0.00</td>
+<td>0.21</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">TET</td>
+<td>0.29</td>
+<td>0.24</td>
+<td>0.02</td>
+<td>0.00</td>
+<td>0.35</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">TMP</td>
+<td>0.69</td>
+<td>0.68</td>
+<td>0.00</td>
+<td>0.01</td>
+<td>0.07</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">TOB</td>
+<td>1.27</td>
+<td>0.96</td>
+<td>0.25</td>
+<td>0.00</td>
+<td>0.30</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">WT</td>
+<td>1.71</td>
+<td>1.50</td>
+<td>0.00</td>
+<td>0.32</td>
+<td>0.01</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-34" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>get_delta(dfLOOCV[[<span class="st">'b1'</span>, <span class="st">'b2'</span>, <span class="st">'flexTPC'</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
 <div>
 
 
@@ -1246,81 +1963,132 @@ WT [20.    44.003  0.794  0.853  0.437  0.   ]</code></pre>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">AMP</td>
-<td>-0.97</td>
-<td>-1.33</td>
-<td>-2.08</td>
+<td>7.78</td>
+<td>5.24</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">CLI</td>
-<td>-1.43</td>
-<td>-1.47</td>
-<td>-1.67</td>
+<td>1.70</td>
+<td>1.43</td>
+<td>0.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">CPR</td>
-<td>-0.78</td>
-<td>-1.23</td>
-<td>-1.70</td>
+<td>6.41</td>
+<td>3.29</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ERY</td>
-<td>-0.34</td>
-<td>-0.70</td>
-<td>-1.21</td>
+<td>6.11</td>
+<td>3.60</td>
+<td>0.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">FOX</td>
-<td>-1.87</td>
-<td>-1.88</td>
-<td>-2.36</td>
+<td>3.48</td>
+<td>3.39</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">GEN</td>
-<td>-0.80</td>
-<td>-1.00</td>
-<td>-1.68</td>
+<td>6.20</td>
+<td>4.80</td>
+<td>0.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">LVX</td>
-<td>-1.50</td>
-<td>-1.50</td>
-<td>-1.74</td>
+<td>1.74</td>
+<td>1.73</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">NTR</td>
-<td>-1.72</td>
-<td>-1.89</td>
-<td>-2.10</td>
+<td>2.69</td>
+<td>1.48</td>
+<td>0.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">STR</td>
-<td>-0.96</td>
-<td>-1.24</td>
-<td>-1.78</td>
+<td>5.74</td>
+<td>3.73</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">TET</td>
-<td>-1.65</td>
-<td>-1.70</td>
-<td>-1.92</td>
+<td>1.91</td>
+<td>1.52</td>
+<td>0.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">TMP</td>
-<td>-1.90</td>
-<td>-1.91</td>
-<td>-2.59</td>
+<td>4.82</td>
+<td>4.77</td>
+<td>0.0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">TOB</td>
-<td>-1.08</td>
-<td>-1.39</td>
-<td>-2.10</td>
+<td>7.11</td>
+<td>4.98</td>
+<td>0.0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">WT</td>
-<td>-0.96</td>
-<td>-1.17</td>
-<td>-2.67</td>
+<td>11.92</td>
+<td>10.45</td>
+<td>0.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-35" class="cell" data-execution_count="62">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>np.mean(get_delta(dfLOOCV), axis<span class="op">=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="62">
+<pre><code>b1         5.630769
+b2         4.307692
+flexTPC    0.430000
+epc        1.205385
+kum        1.044615
+dtype: float64</code></pre>
+</div>
+</div>
+<div id="cell-36" class="cell" data-execution_count="65">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>pd.DataFrame({<span class="st">'LOOCV'</span>:np.mean(get_delta(dfLOOCV), axis<span class="op">=</span><span class="dv">0</span>)})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="65">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">LOOCV</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">b1</td>
+<td>5.630769</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">b2</td>
+<td>4.307692</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">flexTPC</td>
+<td>0.430000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">epc</td>
+<td>1.205385</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">kum</td>
+<td>1.044615</td>
 </tr>
 </tbody>
 </table>

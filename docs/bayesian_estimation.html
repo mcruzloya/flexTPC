@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>flexTPC – Bayesian inference</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">flexTPC</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./fit_examples.html"> 
+<span class="menu-text">Tutorial</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#a-bayesian-statistical-model" id="toc-a-bayesian-statistical-model" class="nav-link active" data-scroll-target="#a-bayesian-statistical-model">A Bayesian statistical model</a>
+  <ul class="collapse">
+  <li><a href="#prior-distributions" id="toc-prior-distributions" class="nav-link" data-scroll-target="#prior-distributions">Prior distributions</a></li>
+  </ul></li>
+  <li><a href="#implementing-the-model" id="toc-implementing-the-model" class="nav-link" data-scroll-target="#implementing-the-model">Implementing the model</a>
+  <ul class="collapse">
+  <li><a href="#the-posterior-distribution" id="toc-the-posterior-distribution" class="nav-link" data-scroll-target="#the-posterior-distribution">The posterior distribution</a></li>
+  <li><a href="#bayesian-inference-with-mcmc-methods" id="toc-bayesian-inference-with-mcmc-methods" class="nav-link" data-scroll-target="#bayesian-inference-with-mcmc-methods">Bayesian inference with MCMC methods</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Bayesian inference</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># FlexTPC model for thermal performance curves.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (parametrized with alpha/beta)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>flexTPC <span class="ot">&lt;-</span> <span class="cf">function</span>(temp, Tmin, Tmax, rmax, alpha, beta) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> alpha <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">/</span> beta<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(temp))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  Tidx <span class="ot">=</span> (temp <span class="sc">&gt;</span> Tmin) <span class="sc">&amp;</span> (temp <span class="sc">&lt;</span> Tmax)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  result[Tidx] <span class="ot">&lt;-</span> rmax <span class="sc">*</span> <span class="fu">exp</span>(s <span class="sc">*</span> (alpha <span class="sc">*</span> <span class="fu">log</span>( (temp[Tidx] <span class="sc">-</span> Tmin) <span class="sc">/</span> alpha) </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">*</span> <span class="fu">log</span>( (Tmax <span class="sc">-</span> temp[Tidx]) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> alpha)) </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span> <span class="fu">log</span>(Tmax <span class="sc">-</span> Tmin)) ) </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(result)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In this example, we will fit data on the lifespan of <em>Culex tarsalis</em> mosquitoes with Bayesian methods. Bayesian approaches make it possible to use external information in the form of prior distributions to inform parameter estimates.</p>
+<p>As before, let’s start by plotting the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>lf.data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">'./mosquito_traits/TraitData_lf.csv'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's filter only the data for female mosquitoes.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>Ctar.lf.data <span class="ot">&lt;-</span> <span class="fu">subset</span>(lf.data, (lf.data<span class="sc">$</span>host.code <span class="sc">==</span> <span class="st">'Ctar'</span>) <span class="sc">&amp;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                       (lf.data<span class="sc">$</span>Trait <span class="sc">==</span> <span class="st">'Female'</span>))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(Ctar.lf.data<span class="sc">$</span>T, Ctar.lf.data<span class="sc">$</span>trait, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">40</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">80</span>), <span class="at">xlab=</span><span class="st">'Temperature [°C]'</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab=</span><span class="st">'Lifespan [days]'</span>, <span class="at">pch=</span><span class="dv">20</span>, <span class="at">col=</span><span class="st">'steelblue'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bayesian_estimation_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can see a few things from this plot:</p>
+<ul>
+<li><p>Lifespan increases at lower temperatures throughout the measured range. However, this cannot continue indefinitely, as eventually temperatures will be too low for the mosquitoes to survive. The lowest temperature that mosquitoes can survive is unlikely to be much lower than 0°C (the freezing point of water). Thus, the thermal performance curves for lifespan are likely left-skewed.</p></li>
+<li><p>It looks like the variability in the data is not constant throughout. Rather, there is greater variability in the measurements at temperatures where lifespan is higher. In this tutorial, we will show how this can be accounted for with a model for the variance.</p></li>
+</ul>
+<section id="a-bayesian-statistical-model" class="level1">
+<h1>A Bayesian statistical model</h1>
+<p>As before, we also need to define the <em>likelihood</em> of our model. In this example we will use the model</p>
+<p><span class="math display">\[y_i | T_i, \mathcal{P}, \sigma \sim \mathrm{Gamma}(\mu=r(T_i;P), \sigma)\]</span> where <span class="math inline">\(y_i\)</span> is the ith observed data point, <span class="math inline">\(T_i\)</span> the temperature corresponding to this data point, and <span class="math inline">\(r(T_i;P)\)</span> is the flexTPC equation with parameters <span class="math inline">\(\mathcal{P}=\{T_\min, T_\max, r_\max, \alpha, \beta \}\)</span>. In this case we have no data with zero values, so we will simplify the model and not consider this an additional case (as we did in the MLE example).</p>
+<p>As before, to account for the standard deviation <span class="math inline">\(\sigma\)</span> varying with temperature, we have the following model:</p>
+<p><span class="math display">\[\ln \sigma = \eta_0+\eta_1 r(T_i; P)\]</span> which we can rewrite as</p>
+<p><span class="math display">\[\sigma = \sigma_0e^{\eta_1 r(T;P)}\]</span> where we can define <span class="math inline">\(\sigma_0=e^{\eta_0}\)</span>.</p>
+<section id="prior-distributions" class="level2">
+<h2 class="anchored" data-anchor-id="prior-distributions">Prior distributions</h2>
+<p>In Bayesian statistics, we represent parameter uncertainty with probability distributions. Rather than considering what happens under hypothetical repeated experiments, we are concerned with estimating the probability that the model parameters have different values.</p>
+<p>A Bayesian analysis starts by choosing a <em>prior distribution</em> for every model parameter that represents the initial uncertainty in these parameters (before seeing any data). In the analysis these prior distributions are updated to a posterior distribution that represents the remaining uncertainty in the analysis after considering which parameter values are compatible with the data (through the likelihood).</p>
+<p>For the rationale of choosing the priors of this model, please check Appendix S1 of the manuscript. We also give general advice on how to choose prior distributions for the flexTPC model in <a href="priors.html">a separate page</a>.</p>
+<p><span class="math display">\[T_\min \sim \mathrm{Normal}(\mu=5\mathrm{°C}, \sigma=2.5\mathrm{°C})\]</span> <span class="math display">\[T_\max \sim \mathrm{Normal}(\mu=35\mathrm{°C}, \sigma=5\mathrm{°C})\]</span> <span class="math display">\[r_\max \sim \mathrm{Uniform}(0, 150)\]</span> <span class="math display">\[\alpha \sim \mathrm{Uniform}(0, 1)\]</span> <span class="math display">\[ \beta \sim \mathrm{Gamma}(\mu=0.35, \sigma=0.2) \]</span> We also need to choose priors for the parameters that relate to the statistical model. We will choose the following noninformative priors:</p>
+<p><span class="math display">\[\sigma_0 \sim \mathrm{Uniform}(0, 100)\]</span></p>
+<p><span class="math display">\[\eta_1 \sim \mathrm{Normal}(\mu=0, \sigma=1)\]</span></p>
+</section>
+</section>
+<section id="implementing-the-model" class="level1">
+<h1>Implementing the model</h1>
+<p>We will start by importing some necesary packages (these need to be installed before use).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">'R2jags'</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">'mcmcplots'</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">'MCMCvis'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">'scales'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The main R package we’ll be using is <span class="math inline">\(\texttt{R2jags}\)</span>. This package lets us run a program that implements Bayesian inference called JAGS (Just Another Gibbs Sampler) from R.</p>
+<p>The first step to implement our model is to write it in a form that can be understood by JAGS. We can do this within R with the <span class="math inline">\(\texttt{cat}\)</span> function, which can save its output to a text file. This text file will then be read by JAGS.</p>
+<p>JAGS has its own probabilistic programming language which looks very similar to how we defined the model earlier. A file that implements our model is shown below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">    model{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="st">    ## Prior distrivutions.</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">    Tmin ~ dnorm(5, 1/2.5^2) # Note that the sd is input as the precision.</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="st">    Tmax ~ dnorm(35, 1/5^2)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="st">    rmax ~ dunif(0, 150)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="st">    alpha ~ dunif(0, 1)</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="st">    beta ~ dgamma(0.35^2 / 0.2^2, 0.35 / 0.2^2)</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="st">    sigma0 ~ dexp(1 / 50)</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="st">    eta1 ~ dnorm(0, 1 / 0.1^2)</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="st">    # Derived quantities</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="st">    s &lt;- alpha * (1 - alpha) / beta^2</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="st">    Topt &lt;- alpha * Tmax + (1 - alpha) * Tmin</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="st">    B &lt;- beta * (Tmax - Tmin)</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="st">    ## Likelihood</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="st">    # For each observation i.</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="st">    for(i in 1:N.obs){</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="st">      # Mean is flexTPC model at temperature of observation.</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="st">      mu[i] &lt;- (Tmax &gt; temp[i]) * (Tmin &lt; temp[i]) * rmax * exp(s * (alpha * log( max(temp[i] - Tmin, 10^-20) / alpha) </span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="st">                          + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="st">                          - log(Tmax - Tmin)) ) </span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="st">                          </span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="st">      # Standard deviation varies with performance according to our model.</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="st">      sigma[i] &lt;- sigma0 * exp(eta1 * mu[i])</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="st">      </span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="st">      # Defines our observation</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="st">      #y[i] ~ dgamma(mu[i]^2 / sigma[i]^2, mu[i] / sigma[i]^2)</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="st">      y[i] ~ dnorm(mu[i], 1 / sigma[i]^2)T(0,)</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="st">    } # close model</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="st">    "</span>,<span class="at">fill=</span><span class="cn">TRUE</span>, <span class="at">file=</span><span class="st">"lifespan.txt"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>There are a few things we need to be aware of when writing a model into JAGS:</p>
+<ul>
+<li><p>Normal distributions in JAGS are parametrized in terms of the mean <span class="math inline">\(\mu\)</span> and the precision <span class="math inline">\(\tau = 1 / \sigma^2\)</span> instead of the mean and standard deviation <span class="math inline">\(\sigma\)</span>. So we’ll have to convert our standard deviations or variances to precisions when inputting normal distributions into JAGS.</p></li>
+<li><p>Gamma distributions in JAGS are parametrized in terms of the shape <span class="math inline">\(a\)</span> and the rate <span class="math inline">\(b\)</span>. We can convert a mean and standard deviation to a shape and rate by taking <span class="math inline">\(a = \mu^2 / \sigma^2\)</span> and <span class="math inline">\(b = \mu / \sigma^2\)</span>.</p></li>
+<li><p>We can define any quantity that is a deterministic function of the model parameters in JAGS. This allows us to easily get credible intervals from these quantities. We do this in the derived quantities section to calculate <span class="math inline">\(T_\mathrm{opt}\)</span> and <span class="math inline">\(B\)</span>.</p></li>
+<li><p>The likelihood for each observation <span class="math inline">\(y_i\)</span> inside a for loop. In this loop we iterate over all observations and calculate what the mean and standard deviation of the Gamma distribution should be according to our model.</p></li>
+</ul>
+<section id="the-posterior-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="the-posterior-distribution">The posterior distribution</h2>
+<p>The main goal in a Bayesian analysis is to obtain the posterior distribution of the parameters. This corresponds to the remaining uncertainty in the parameters after seeing the data. The prior distribution and the likelihood are combined to obtain the posterior distribution with Bayes’s Theorem:</p>
+<p><span class="math display">\[p(\theta | y) = \frac{p(y|\theta) p(\theta)}{p(y)} \]</span></p>
+<p><span class="math display">\[\mathrm{posterior} \propto \mathrm{prior} \times \mathrm{likelihood} \]</span></p>
+</section>
+<section id="bayesian-inference-with-mcmc-methods" class="level2">
+<h2 class="anchored" data-anchor-id="bayesian-inference-with-mcmc-methods">Bayesian inference with MCMC methods</h2>
+<p>Now that we’ve written down our model (priors and likelihood) in the JAGS language, we can proceed to running the analysis. JAGS implements a Gibbs sampler, which is a form of Markov Chain Monte Carlo (MCMC), an algorithm that allows us to get samples from the posterior distribution of a Bayesian statistical model. Explaining how MCMC methods work in detail is beyond the scope of this tutorial. However, we provide a simplified explanation here to aid understanding of the process of fitting a Bayesian model (and to better understand the code below):</p>
+<ol type="1">
+<li>We start with initial guesses for the model parameters. This is considered the first value of the MCMC chain.</li>
+<li>The Gibbs sampling algorithm then decides a random new value for the model parameters based on their current value, the model likelihood and the priors. This algorithm is cleverly set up so that in the long run, the distribution of parameters of the chain will correspond to draws from the posterior distribution of our model.</li>
+<li>We run the Gibbs sampling algorithm iteratively with the updated values, saving the values the parameters take at each iteration. Eventually, if we run the chain long enough, the MCMC chain will converge to its equilibrium distribution (which corresponds to the posterior distribution).</li>
+<li>After convergence, we the samples from the MCMC chain are samples from the posterior distribution of our model. We can use these samples to calculate summaries of this distribution (like means and credible intervals for the individual parameters).</li>
+</ol>
+<p>MCMC is only guaranteed to sample from the posterior distribution in the long run. Because of this, it is important to a) run the chains for a large number of iterations, and b) check for signs that the chains may not have yet converged, as in that case we cannot trust the results.</p>
+<p>It is usually a good idea to run multiple MCMC chains with different starting values. Once the chains have converged, they should be drawing samples from the same distribution (the posterior). We can examine plots of the multiple MCMC chains to see if they look similar as an informal check if they converged. We can also check some convergence criteria that are based on statistical comparisons of the variability between and within chains.</p>
+<p>In this example, we will run four independent MCMC chains. We will choose the initial values of the MCMC chains by drawing these values randomly (but within specified ranges). In this example, we will run the chains for 500000 iterations. We often want to discard some of the initial iterations (a burn-in period), since it is likely that the chains have not yet converged in early iterations We will save only one out of every eight iterations to save some memory. Optionally, we can discard some of the iterations to save some memory.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set random seed for reproducibility.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="do">##### Set MCMC settings</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of posterior dist elements = [(ni - nb) / nt ] * nc = [ (25000 - 5000) / 8 ] * 3 = 7500</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>nc <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="co"># number of MCMC chains</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>ni <span class="ot">&lt;-</span> <span class="dv">500000</span> <span class="co"># number of iterations in each chain</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>nb <span class="ot">&lt;-</span> <span class="dv">50000</span> <span class="co"># number of 'burn in' iterations to discard</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>nt <span class="ot">&lt;-</span> <span class="dv">8</span> <span class="co"># thinning rate - jags saves every nt iterations in each chain</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="do">#### Recipe for choosing initial values for MCMC (so each chain starts at different values).</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>inits<span class="ot">&lt;-</span><span class="cf">function</span>(){<span class="fu">list</span>(</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Tmin =</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min=</span><span class="fl">2.5</span>, <span class="at">max=</span><span class="fl">7.5</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Tmax =</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min=</span><span class="dv">35</span>, <span class="at">max=</span><span class="dv">40</span>),</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">rmax =</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min=</span><span class="dv">0</span>, <span class="at">max=</span><span class="dv">150</span>),</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min=</span><span class="fl">0.2</span>, <span class="at">max=</span><span class="fl">0.8</span>),</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta =</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min=</span><span class="fl">0.2</span>, <span class="at">max=</span><span class="fl">0.7</span>),</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma0 =</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min=</span><span class="dv">0</span>, <span class="at">max=</span><span class="dv">50</span>),</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">eta1 =</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min=</span><span class="sc">-</span><span class="fl">0.1</span>, <span class="at">max=</span><span class="fl">0.1</span>))}</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="do">##### Parameters to save from MCMC chains.</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Tmin"</span>, <span class="st">"Tmax"</span>, <span class="st">"rmax"</span>, <span class="st">"alpha"</span>, <span class="st">"beta"</span>, <span class="st">'s'</span>, <span class="st">"Topt"</span>, <span class="st">"sigma0"</span>, <span class="st">"eta1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Note that what we have in <span class="math inline">\(\texttt{inits}\)</span> is different than the prior distributions. The purpose of this code is to choose the initial values of our MCMC chains randomly. In principle, we could choose any starting values, but in practice things work better (i.e.&nbsp;the MCMC chains will converge faster) if the initial values are plausible parameter values for describing the data.</p>
+<p>Now that we have defined the relevant MCMC settings, we can organize the data and fit the model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">##### Organize Data for JAGS</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> Ctar.lf.data<span class="sc">$</span>trait</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> Ctar.lf.data<span class="sc">$</span>T</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>N.obs <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="do">##### Bundle Data</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>jag.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y=</span>y, <span class="at">temp =</span> temp, <span class="at">N.obs=</span>N.obs)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>jags.out <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data=</span>jag.data, <span class="at">inits=</span>inits, <span class="at">parameters.to.save=</span>parameters, </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                         <span class="at">model.file=</span><span class="st">"lifespan.txt"</span>, <span class="at">n.thin=</span>nt, <span class="at">n.chains=</span>nc, </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                         <span class="at">n.burnin=</span>nb, <span class="at">n.iter=</span>ni, <span class="at">DIC=</span><span class="cn">TRUE</span>, <span class="at">working.directory=</span><span class="fu">getwd</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>module glm loaded</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 33
+   Unobserved stochastic nodes: 7
+   Total graph size: 286
+
+Initializing model</code></pre>
+</div>
+</div>
+<p>The previous code ran an MCMC algorithm to sample from the posterior distribution of our model. We can look at the values of the first few iterations of our MCMC chain.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>chains <span class="ot">&lt;-</span> <span class="fu">MCMCchains</span>(jags.out, <span class="at">params =</span> <span class="fu">c</span>(<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'rmax'</span>, <span class="st">'alpha'</span>, <span class="st">'beta'</span>, <span class="st">'Topt'</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                                <span class="st">'sigma0'</span>, <span class="st">'eta1'</span>))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(chains)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Tmin     Tmax     rmax      alpha      beta      Topt    sigma0
+[1,]  5.679186 38.93609 50.58937 0.06088373 0.2594664  7.703991  1.205484
+[2,]  5.059177 41.68388 36.53974 0.25604239 0.2992110 14.436655  5.137441
+[3,]  3.395206 41.79350 40.90831 0.18941846 0.3262908 10.668552  2.263047
+[4,] 10.002884 42.45772 30.98153 0.08614849 0.2899040 12.798819  1.448849
+[5,]  3.062419 37.59707 40.72979 0.43290347 0.3023225 18.012588 20.156065
+[6,]  3.389629 43.43354 54.49044 0.05553694 0.2025542  5.613545  6.219664
+             eta1
+[1,]  0.064093208
+[2,]  0.023128628
+[3,]  0.059832411
+[4,]  0.090174379
+[5,] -0.009103983
+[6,]  0.023000565</code></pre>
+</div>
+</div>
+<p>Each row here corresponds to one MCMC iteration. If the MCMC chains have converged, it also corresponds to one sample from the posterior distribution of our model parameters, which describes the remaining uncertainty in these parameters after the analysis.</p>
+<p>As an informal graphical check for convergence, we can look at a traceplot of our four independent MCMC chains, which shows the values of the parameters at each iteration. If the chains have converged, these four chains should be drawing samples from the same distribution and should look very similar to each other. Let’s look at the values for some model parameters.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">MCMCtrace</span>(jags.out, </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">params =</span> <span class="fu">c</span>(<span class="st">'Tmin'</span>, <span class="st">'Tmax'</span>, <span class="st">'rmax'</span>), </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">ISB =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">iter=</span><span class="dv">225000</span>, <span class="co"># Plot all saved traces.</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">exact =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">ind=</span><span class="cn">TRUE</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">pdf =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bayesian_estimation_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here the values of our four chains are plotted with different colors. The left plots are traceplots that show the value of the parameters at each iteration of our four MCMC chains (each shown in a different color). If the chains look systematically different from each other, it indicates that they are not yet drawing from the same distribution, making it likely that the chains have not yet converged. An MCMC chain that has converged usually looks like a “fuzzy caterpillar” (like the plots above).</p>
+<p>The plots on the right show a density plot (i.e.&nbsp;essentially a smoothed histogram) of the values of our individual MCMC chains. These plots estimate the posterior distribution of the model parameters, provided the MCMC chains have converged. If the distribution from samples from different chains look different from each other, this indicates that the chains have not yet converged. When running an MCMC algorithm, these plots should always be checked (for all parameters of interest, although we only show these three here) before trusting the results. One convenient way to do this is the function</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmcplot</span>(jags.out)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for Tmax.  10% complete.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for Tmin.  20% complete.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for Topt.  30% complete.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for alpha.  40% complete.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for beta.  50% complete.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for deviance.  60% complete.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for eta1.  70% complete.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for rmax.  80% complete.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for s.  90% complete.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                                                                
+Preparing plots for sigma0.  100% complete.</code></pre>
+</div>
+</div>
+<p>which can show traceplots and density plots for all parameters in a web browser (this won’t work in this tutorial, but you can run this if you are following along).</p>
+<p>After inspecting the chains and finding no obvious issues, we can now look at a summary of our analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>jags.out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Inference for Bugs model at "lifespan.txt", fit using jags,
+ 4 chains, each with 5e+05 iterations (first 50000 discarded), n.thin = 8
+ n.sims = 225000 iterations saved
+         mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat  n.eff
+Tmax      40.527   3.116  34.900  38.455  40.291  42.421  47.181 1.001 200000
+Tmin       4.668   2.464  -0.174   3.010   4.673   6.336   9.491 1.001 220000
+Topt      10.729   3.623   3.579   8.131  10.859  13.493  17.060 1.001 110000
+alpha      0.168   0.092   0.023   0.094   0.161   0.233   0.358 1.001 180000
+beta       0.304   0.073   0.154   0.260   0.303   0.348   0.449 1.001  61000
+eta1       0.049   0.026   0.002   0.032   0.047   0.064   0.109 1.001  36000
+rmax      44.169   7.169  32.433  39.288  43.299  48.105  60.766 1.001  34000
+s          1.436   0.678   0.590   0.978   1.290   1.729   3.099 1.001 220000
+sigma0     3.260   2.957   0.602   1.520   2.368   3.834  12.025 1.001  38000
+deviance 239.331   4.599 233.349 235.978 238.308 241.593 250.986 1.001 120000
+
+For each parameter, n.eff is a crude measure of effective sample size,
+and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
+
+DIC info (using the rule, pD = var(deviance)/2)
+pD = 10.6 and DIC = 249.9
+DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
+</div>
+</div>
+<p>This contains the posterior mean (<span class="math inline">\(\texttt{mu.vect}\)</span>) and standard deviation (<span class="math inline">\(\texttt{sd.vect}\)</span>), as well as the 2.5%, 25%, 50% (median), 75% and 97.5% quantiles of the posterior distribution for each model parameter and generated quantity. A 95% credible interval can be contructed from the 2.5% and 97.5% quantiles.</p>
+<p>This summary also contains some MCMC diagnostics that can be useful to detect nonconvergence. The Gelman-Rubin statistic <span class="math inline">\(\hat{R}\)</span> is a convergence diagnostic that compares the variability within and across the different MCMC chains. If the MCMC chains have converged Rhat should be very close to one. One rule of thumb is that we should only use samples for which <span class="math inline">\(\hat{R}&lt;1.01\)</span> for all parameters of interest.</p>
+<p>The samples of an MCMC chain are usually correlated. The effective sample size <span class="math inline">\(n_\mathrm{eff}\)</span> is an estimate of how many independent samples would be equivalent to the (non-independent) samples that we have from our chains. One rule of thumb is that ideally we want <span class="math inline">\(n_\mathrm{eff} \approx 10000\)</span> or higher if we want to estimate a 95% credible interval for a parameter. Having low <span class="math inline">\(n_\mathrm{eff}\)</span> after many iterations often indicates an issue with the model and/or MCMC convergence issues.</p>
+<p>Each MCMC iteration corresponds to a draw from the posterior distribution of the model parameters. As the model parameters define a flexTPC curve, each iteration can also be interpreted as a sample from the posterior distribution of flexTPC curves that could plausibly describe the data. Let’s plot a few of these TPCs samples from the posterior:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>temps <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">45</span>, <span class="fl">0.1</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>chains <span class="ot">&lt;-</span> <span class="fu">MCMCchains</span>(jags.out, <span class="at">params=</span><span class="fu">c</span>(<span class="st">"Tmin"</span>, <span class="st">"Tmax"</span>, <span class="st">"rmax"</span>, <span class="st">"alpha"</span>, <span class="st">"beta"</span>))</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>curves <span class="ot">&lt;-</span> <span class="fu">apply</span>(chains, <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">flexTPC</span>(temps, x[<span class="dv">1</span>], x[<span class="dv">2</span>], x[<span class="dv">3</span>], x[<span class="dv">4</span>], x[<span class="dv">5</span>]))</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample 10 curves from posterior distribution</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>sample.idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">225000</span>, <span class="dv">10</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(Ctar.lf.data<span class="sc">$</span>T, Ctar.lf.data<span class="sc">$</span>trait, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">40</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">80</span>), <span class="at">xlab=</span><span class="st">'Temperature [°C]'</span>,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab=</span><span class="st">'Lifespan [days]'</span>, <span class="at">pch=</span><span class="dv">20</span>, <span class="at">col=</span><span class="st">'steelblue'</span>)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) {</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(temps, curves[, sample.idx[i]], <span class="at">col=</span><span class="fu">alpha</span>(<span class="st">"grey"</span>, <span class="fl">0.3</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bayesian_estimation_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Each gray line corresponds to a flexTPC curve that could plausibly describe this data. We usually want to summarize these posterior samples. We can do this by taking the mean and a 95% credible interval at each temperature from a large number of samples of these TPCs. Let’s do this and plot it with the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>meancurve <span class="ot">&lt;-</span> <span class="fu">apply</span>(curves, <span class="dv">1</span>, mean)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>CI <span class="ot">&lt;-</span> <span class="fu">apply</span>(curves, <span class="dv">1</span>, quantile, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(Ctar.lf.data<span class="sc">$</span>T, Ctar.lf.data<span class="sc">$</span>trait, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">40</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">80</span>), <span class="at">xlab=</span><span class="st">'Temperature [°C]'</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab=</span><span class="st">'Lifespan [days]'</span>, <span class="at">pch=</span><span class="dv">20</span>, <span class="at">col=</span><span class="st">'steelblue'</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(temps, meancurve, <span class="at">col=</span><span class="st">"steelblue"</span>, <span class="at">lwd=</span><span class="fl">1.5</span>, <span class="at">type=</span><span class="st">'l'</span>)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">polygon</span>(<span class="fu">c</span>(temps, <span class="fu">rev</span>(temps)), <span class="fu">c</span>(CI[<span class="dv">1</span>,], <span class="fu">rev</span>(CI[<span class="dv">2</span>,])), </span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">col=</span><span class="fu">alpha</span>(<span class="st">"steelblue"</span>, <span class="fl">0.2</span>), <span class="at">lty=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bayesian_estimation_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can compare the prior and posterior distribution for each parameter to see how the data changed the uncertainty.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>posterior.col <span class="ot">=</span> <span class="st">"purple"</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Tmin</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>temps <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">15</span>, <span class="fl">0.1</span>)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(<span class="fu">MCMCchains</span>(jags.out, <span class="at">params=</span><span class="fu">c</span>(<span class="st">"Tmin"</span>))), <span class="at">lwd=</span><span class="dv">2</span>, <span class="at">col=</span>posterior.col,, <span class="at">type=</span><span class="st">'l'</span>, <span class="at">main=</span><span class="st">'Tmin'</span>,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'temperature [°C]'</span>, <span class="at">ylab=</span><span class="st">'prob. density'</span>)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(temps, <span class="fu">dnorm</span>(temps, <span class="at">mean=</span><span class="dv">5</span>, <span class="at">sd=</span><span class="fl">2.5</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Tmax</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>temps <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">20</span>, <span class="dv">50</span>, <span class="fl">0.1</span>)</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(<span class="fu">MCMCchains</span>(jags.out, <span class="at">params=</span><span class="fu">c</span>(<span class="st">"Tmax"</span>))), <span class="at">lwd=</span><span class="dv">2</span>, <span class="at">col=</span>posterior.col, <span class="at">type=</span><span class="st">'l'</span>, <span class="at">main=</span><span class="st">'Tmax'</span>,</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'temperature [°C]'</span>, <span class="at">ylab=</span><span class="st">'prob. density'</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">50</span>))</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(temps, <span class="fu">dnorm</span>(temps, <span class="at">mean=</span><span class="dv">35</span>, <span class="at">sd=</span><span class="dv">5</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a><span class="co"># rmax</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>rmax <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">150</span>, <span class="fl">0.1</span>)</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(<span class="fu">MCMCchains</span>(jags.out, <span class="at">params=</span><span class="fu">c</span>(<span class="st">"rmax"</span>))), <span class="at">lwd=</span><span class="dv">2</span>,</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span>posterior.col, <span class="at">type=</span><span class="st">'l'</span>, <span class="at">main=</span><span class="st">'rmax'</span>,</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'max lifespan [days]'</span>, <span class="at">ylab=</span><span class="st">'prob. density'</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">150</span>))</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(rmax, <span class="fu">dunif</span>(rmax, <span class="dv">0</span>, <span class="dv">150</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a><span class="co"># alpha</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.01</span>)</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(<span class="fu">MCMCchains</span>(jags.out, <span class="at">params=</span><span class="fu">c</span>(<span class="st">"alpha"</span>))), <span class="at">lwd=</span><span class="dv">2</span>, <span class="at">col=</span>posterior.col, <span class="at">type=</span><span class="st">'l'</span>, <span class="at">main=</span><span class="st">'alpha'</span>,</span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'alpha [unitless]'</span>, <span class="at">ylab=</span><span class="st">'prob. density'</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(alpha, <span class="fu">dunif</span>(alpha, <span class="dv">0</span>, <span class="dv">1</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a><span class="co"># beta</span></span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">1.5</span>, <span class="fl">0.01</span>)</span>
+<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(<span class="fu">MCMCchains</span>(jags.out, <span class="at">params=</span><span class="fu">c</span>(<span class="st">"beta"</span>))), <span class="at">lwd=</span><span class="dv">2</span>,</span>
+<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span>posterior.col, <span class="at">type=</span><span class="st">'l'</span>, <span class="at">main=</span><span class="st">'beta'</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1.5</span>),</span>
+<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'beta [unitless]'</span>, <span class="at">ylab=</span><span class="st">'prob. density'</span>)</span>
+<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(beta, <span class="fu">dgamma</span>(beta, <span class="at">shape=</span><span class="fl">0.35</span><span class="sc">^</span><span class="dv">2</span><span class="sc">/</span><span class="fl">0.2</span><span class="sc">^</span><span class="dv">2</span>, <span class="at">rate=</span><span class="fl">0.35</span><span class="sc">/</span><span class="fl">0.2</span><span class="sc">^</span><span class="dv">2</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a><span class="co"># sigma0</span></span>
+<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a>sigma0 <span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="fl">0.01</span>)</span>
+<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(<span class="fu">MCMCchains</span>(jags.out, <span class="at">params=</span><span class="fu">c</span>(<span class="st">"sigma0"</span>))), <span class="at">lwd=</span><span class="dv">2</span>,</span>
+<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span>posterior.col, <span class="at">type=</span><span class="st">'l'</span>, <span class="at">main=</span><span class="st">'sigma0'</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">50</span>),</span>
+<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'sigma0 [days]'</span>, <span class="at">ylab=</span><span class="st">'prob. density'</span>)</span>
+<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(sigma0, <span class="fu">dexp</span>(sigma0, <span class="dv">1</span><span class="sc">/</span><span class="dv">50</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a><span class="co">#eta 1</span></span>
+<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>eta1 <span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.01</span>)</span>
+<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(<span class="fu">MCMCchains</span>(jags.out, <span class="at">params=</span><span class="fu">c</span>(<span class="st">"eta1"</span>))), <span class="at">lwd=</span><span class="dv">2</span>,</span>
+<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span>posterior.col, <span class="at">type=</span><span class="st">'l'</span>, <span class="at">main=</span><span class="st">'eta1'</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.3</span>, <span class="fl">0.3</span>),</span>
+<span id="cb27-50"><a href="#cb27-50" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'eta1 [1 / day]'</span>, <span class="at">ylab=</span><span class="st">'prob. density'</span>)</span>
+<span id="cb27-51"><a href="#cb27-51" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(eta1, <span class="fu">dnorm</span>(eta1, <span class="dv">0</span>, <span class="fl">0.1</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bayesian_estimation_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here, the prior distribution is shown in black and the posterior distribution in purple. Conceptually, the prior distribution corresponds to our initial uncertainty about the model parameters (based on model assumptions), and the posterior to the updated uncertainty after considering the data.</p>
+<p>We can see that the the posterior distribution for <span class="math inline">\(T_\mathrm{min}\)</span> is almost identical to the prior. This is expected, as there are no measurements at low temperatures, so the data had very little (if any) information about this parameter. Because of this our <span class="math inline">\(T_\mathrm{min}\)</span> estimates are heavily dependent on the choice of prior. This is not necessarily a bad thing, as the prior makes it possible to constrain the parameters to biologically relevant ranges even when data is limited at those temperatures. However, for parameters where the data should be informing a parameter, a prior and posterior that are very similar can suggest that the prior is too strong and overly constraining the values of the parameter.</p>
+<p>In this example, we can see that for all other parameters other than <span class="math inline">\(T_{\min}\)</span>, the posterior distribution is different than the prior, and is more concentrated/narrower. This shows us how the uncertainty on the model parameters changed upon seeing the data.</p>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<p>For more about Bayesian statistics, please see:</p>
+<p>Kruschke. 2015. Doing Bayesian Data Analysis. A Tutorial with R, JAGS, and Stan.</p>
+<p>Gelman et al.&nbsp;2013. Bayesian Data Analysis.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>flexTPC – FlexTPC tutorial</title>
+<title>flexTPC – Tutorial</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -101,35 +101,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -156,8 +127,8 @@ window.Quarto = {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
-<span class="menu-text">About</span></a>
+    <a class="nav-link active" href="./fit_examples.html" aria-current="page"> 
+<span class="menu-text">Tutorial</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -175,8 +146,8 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#least-squares-estimation" id="toc-least-squares-estimation" class="nav-link active" data-scroll-target="#least-squares-estimation">Least squares estimation</a></li>
-  <li><a href="#maximum-likelihood-estimation" id="toc-maximum-likelihood-estimation" class="nav-link" data-scroll-target="#maximum-likelihood-estimation">Maximum likelihood estimation</a></li>
+  <li><a href="#plotting-flextpc-curves" id="toc-plotting-flextpc-curves" class="nav-link active" data-scroll-target="#plotting-flextpc-curves">Plotting flexTPC curves</a></li>
+  <li><a href="#fitting-thermal-performance-curves" id="toc-fitting-thermal-performance-curves" class="nav-link" data-scroll-target="#fitting-thermal-performance-curves">Fitting thermal performance curves</a></li>
   </ul>
 </nav>
     </div>
@@ -185,7 +156,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">FlexTPC tutorial</h1>
+<h1 class="title">Tutorial</h1>
 </div>
 
 
@@ -202,40 +173,50 @@ window.Quarto = {
 </header>
 
 
-<p>FlexTPC is a model for thermal performance curves that is both flexible and interpretable. In this tutorial, we provide example R code to fit flexTPC to data with various different methods.</p>
-<p>First, we provide code that implements he flexTPC functional form. There are two different parametrizations of flexTPC that can be useful in different circumstances.</p>
+<p>In this tutorial, we provide example code to show how to fit flexTPC with various methodologies (least squares estimation, maximum likelihood estimation and Bayesian approaches).</p>
+<section id="plotting-flextpc-curves" class="level2">
+<h2 class="anchored" data-anchor-id="plotting-flextpc-curves">Plotting flexTPC curves</h2>
+<p>First, we provide code that implements the flexTPC model. There are two different parametrizations of flexTPC that can be useful in different circumstances (see paper for details).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># FlexTPC model for thermal performance curves.</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (parametrized with alpha/beta)</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>flexTPC <span class="ot">&lt;-</span> <span class="cf">function</span>(T, Tmin, Tmax, rmax, alpha, beta) {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>flexTPC <span class="ot">&lt;-</span> <span class="cf">function</span>(temp, Tmin, Tmax, rmax, alpha, beta) {</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> alpha <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">/</span> beta<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(T))</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  Tidx <span class="ot">=</span> (T <span class="sc">&gt;</span> Tmin) <span class="sc">&amp;</span> (T <span class="sc">&lt;</span> Tmax)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  result[Tidx] <span class="ot">&lt;-</span> rmax <span class="sc">*</span> <span class="fu">exp</span>(s <span class="sc">*</span> (alpha <span class="sc">*</span> <span class="fu">log</span>( (T[Tidx] <span class="sc">-</span> Tmin) <span class="sc">/</span> alpha) </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">*</span> <span class="fu">log</span>( (Tmax <span class="sc">-</span> T[Tidx]) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> alpha)) </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(temp))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  Tidx <span class="ot">=</span> (temp <span class="sc">&gt;</span> Tmin) <span class="sc">&amp;</span> (temp <span class="sc">&lt;</span> Tmax)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  result[Tidx] <span class="ot">&lt;-</span> rmax <span class="sc">*</span> <span class="fu">exp</span>(s <span class="sc">*</span> (alpha <span class="sc">*</span> <span class="fu">log</span>( (temp[Tidx] <span class="sc">-</span> Tmin) <span class="sc">/</span> alpha) </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">*</span> <span class="fu">log</span>( (Tmax <span class="sc">-</span> temp[Tidx]) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> alpha)) </span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span> <span class="fu">log</span>(Tmax <span class="sc">-</span> Tmin)) ) </span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(result)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># FlexTPC model for thermal performance curves.</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># (parametrized with Topt/B)</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>flexTPC2 <span class="ot">&lt;-</span> <span class="cf">function</span>(T, Tmin, Tmax, rmax, Topt, B) {</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>flexTPC2 <span class="ot">&lt;-</span> <span class="cf">function</span>(temp, Tmin, Tmax, rmax, Topt, B) {</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> (Topt <span class="sc">-</span> Tmin) <span class="sc">/</span> (Tmax <span class="sc">-</span> Tmin)</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> B <span class="sc">/</span> (Tmax <span class="sc">-</span> Tmin)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">flexTPC</span>(T, Tmin, Tmax, rmax, alpha, beta))</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>((alpha <span class="sc">&gt;=</span> <span class="fl">0.0</span>) <span class="sc">&amp;</span> (alpha <span class="sc">&lt;=</span> <span class="fl">1.0</span>)) {</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">flexTPC</span>(temp, Tmin, Tmax, rmax, alpha, beta))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(temp)))</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Let’s show how to plot a TPC. You can choose to parametrize flexTPC with the nondimensional or dimensional version of the optimal temperature and the thermal breadth near the peak.</p>
+<p>Let’s plot some flexTPC curves to ensure the model is working correctly.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">5</span>, <span class="dv">38</span>, <span class="fl">0.1</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(temp, <span class="fu">flexTPC</span>(temp, <span class="at">Tmin=</span><span class="dv">10</span>, <span class="at">Tmax=</span><span class="dv">35</span>, <span class="at">rmax=</span><span class="fl">1.0</span>, <span class="at">alpha=</span><span class="fl">0.8</span>, <span class="at">beta=</span><span class="fl">0.2</span>), <span class="at">type=</span><span class="st">'l'</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'temperature [°C]'</span>, <span class="at">ylab=</span><span class="st">'trait performance'</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Intentionally picking a Topt that is a little lower than the previous</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># curve so they are not plotted on top of each other.</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(temp, <span class="fu">flexTPC2</span>(temp, <span class="at">Tmin=</span><span class="dv">10</span>, <span class="at">Tmax=</span><span class="dv">35</span>, <span class="at">rmax=</span><span class="fl">1.0</span>, <span class="at">Topt=</span><span class="fl">29.0</span>, <span class="at">B=</span><span class="fl">5.0</span>),</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'temperature [°C]'</span>, <span class="at">ylab=</span><span class="st">'trait performance'</span>, <span class="at">col=</span><span class="st">'red'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creates a vector of temperatures from 5 to 38°C with a 0.1°C step.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">5</span>, <span class="dv">38</span>, <span class="fl">0.1</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plots a flexTPC curve using the alpha/beta parametrization.</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(temp, <span class="fu">flexTPC</span>(temp, <span class="at">Tmin=</span><span class="dv">10</span>, <span class="at">Tmax=</span><span class="dv">35</span>, <span class="at">rmax=</span><span class="fl">1.0</span>, <span class="at">alpha=</span><span class="fl">0.8</span>, <span class="at">beta=</span><span class="fl">0.2</span>), <span class="at">type=</span><span class="st">'l'</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'Temperature [°C]'</span>, <span class="at">ylab=</span><span class="st">'Trait performance'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plots a flexTPC curve using the Topt/B parametrization.</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># We are intentionally picking a Topt that is a little lower than the previous</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># curve so they are not plotted on top of each other.</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(temp, <span class="fu">flexTPC2</span>(temp, <span class="at">Tmin=</span><span class="dv">10</span>, <span class="at">Tmax=</span><span class="dv">35</span>, <span class="at">rmax=</span><span class="fl">1.0</span>, <span class="at">Topt=</span><span class="fl">29.0</span>, <span class="at">B=</span><span class="fl">5.0</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">col=</span><span class="st">'red'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -244,19 +225,17 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>We now show how to fit flexTPC to an example dataset.</p>
-<section id="least-squares-estimation" class="level2">
-<h2 class="anchored" data-anchor-id="least-squares-estimation">Least squares estimation</h2>
-<p>A simple approach to estimate TPCs is to perform nonlinear least squares estimation. This finds the curve that minimizes the squared difference between the TPC and the data points.</p>
+<p>At this point, you may want to try modifying the parameter values to observe how this changes the curve. This can be a useful way to get intuition on what the parameters are doing to the curve and can be a good way to estimate reasonable starting values for the model parameters.</p>
 </section>
-<section id="maximum-likelihood-estimation" class="level2">
-<h2 class="anchored" data-anchor-id="maximum-likelihood-estimation">Maximum likelihood estimation</h2>
-<p>When fitting a thermal performance curve model to data it is helpful to think about the model being comprised of two parts:</p>
+<section id="fitting-thermal-performance-curves" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-thermal-performance-curves">Fitting thermal performance curves</h2>
+<p>When fitting a thermal performance curve model (e.g.&nbsp;flexTPC) to data, our goal is to find the model parameters that are most consistent with the observations. In statistics, curve fitting problems similar to this are referred to as regression problems. More specifically, this is a <em>parametric nonlinear regression</em>, where the regression function that is used is the TPC model.</p>
+<p>There are different methods to estimate parameters in a regression problem.</p>
 <ul>
-<li>A functional form <span class="math inline">\(r(T)\)</span> for the thermal performance curve (e.g.&nbsp;flexTPC, the Briere model, etc.) that describes the temperature dependence of a biological trait.</li>
-<li>A model of the errors, which describes a plausible mechanism of generating the observed datapoints from the model around the mean given by <span class="math inline">\(r(T)\)</span>.</li>
+<li><p><a href="least_squares.html">Least squares estimation</a> is a simple method that is popular in practice.</p></li>
+<li><p><a href="mle.html">Maximum likelihood estimation</a> allows modeling the error distribution to better account for non-constant variance and for aspects of the data (e.g.&nbsp;that it is non-negative), but requires more statistical expertise.</p></li>
+<li><p><a href="bayesian_estimation.html">Bayesian approaches</a> use probability distributions to describe parameter uncertainty and allow incorporating information from other experiments or the habitat of the organism when estimating TPCs.</p></li>
 </ul>
-<p>Least squares estimation is equivalent to assuming the model residuals are normally distributed with a constant variance.</p>
 
 
 </section>
