@@ -3,6 +3,8 @@ library('mcmcplots')
 library('MCMCvis')
 library('scales')
 
+setwd("/Users/cruzloya/git/flexTPC/mosquito_traits/")
+
 set.seed(42)
 
 lit.col = "purple"
@@ -56,7 +58,7 @@ get_loglik <- function(jags.out, n.iter=31250, n.chains=4, N=7) {
 
 ##### Set MCMC Settings common to all traits
 # Number of posterior dist elements = [(ni - nb) / nt ] * nc = [ (25000 - 5000) / 8 ] * 3 = 7500
-ni <- 300000 # number of iterations in each chain
+ni <- 500000 # number of iterations in each chain
 nb <- 50000 # number of 'burn in' iterations to discard
 nt <- 8 # thinning rate - jags saves every nt iterations in each chain
 nc <- 4 # number of chains
@@ -124,12 +126,14 @@ cat("
     Tmax ~ dnorm(35, 1/5^2)
     rmax ~ dunif(0, 1)
     alpha ~ dunif(0, 1)
-    beta ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
+    beta ~ dgamma(0.35^2 / 0.2^2, 0.35 / 0.2^2)
     
     
     # Derived quantities
     s <- alpha * (1 - alpha) / beta^2
     Topt <- alpha * Tmax + (1 - alpha) * Tmin
+    A <-  2 * abs(alpha - 0.5)
+    B <- beta * (Tmax - Tmin)
 
     ## Likelihood
     for(i in 1:N.obs){
@@ -189,7 +193,7 @@ inits<-function(){list(
 
 inits
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "A", "B")
 
 
 
@@ -231,7 +235,8 @@ inits<-function(){list(
   beta = runif(1, min=0.1, max=0.5))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "A",
+                "B")
 
 flex.EV.Cqui.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, 
                          model.file="flex_EV_binom.txt", n.thin=nt, n.chains=nc, 
@@ -335,7 +340,7 @@ cat("
     for(i in 1:N.obs){
     mu[i] <- min(c * (temp[i] - Tmin) * (Tmax - temp[i]) * (temp[i] < Tmax) * (Tmin < temp[i]),
     1)
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0, )
     }
     
     } # close model
@@ -350,13 +355,16 @@ cat("
     Tmin ~ dnorm(5, 1/2.5^2) 
     Tmax ~ dnorm(35, 1/5^2)
     rmax ~ dunif(0, 1)
-    alpha ~ dunif(0, 1)
-    beta ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
+    #alpha ~ dunif(0, 1)
+    alpha ~ dbeta(2, 2)
+    beta ~ dgamma(0.35^2 / 0.2^2, 0.35 / 0.2^2)
     sigma ~ dunif(0, 1)
     
     # Derived quantities
     s <- alpha * (1 - alpha) / beta^2
     Topt <- alpha * Tmax + (1 - alpha) * Tmin
+    A <- 2 * abs(alpha - 0.5)
+    B <- beta * (Tmax - Tmin)
 
     ## Likelihood
     for(i in 1:N.obs){
@@ -364,7 +372,7 @@ cat("
                           + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))
                           - log(Tmax - Tmin)) ) 
     
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0, )
     }
     
     } # close model
@@ -410,7 +418,7 @@ inits<-function(){list(
   beta = runif(1, min=0.1, max=0.5))}
 
 ##### Parameters to Estimate
-parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "sigma")
+parameters <- c("Tmin", "Tmax", "rmax", "alpha", "beta", "s", "Topt", "sigma", "A", "B")
 
 jag.data<-list(y=y.Cpip, temp = temp.Cpip, N.obs=N.obs.Cpip)
 flex.pLA.Cpip.out <- jags(data=jag.data, inits=inits, parameters.to.save=parameters, 
@@ -544,7 +552,7 @@ cat("
     ## Likelihood
     for(i in 1:N.obs){
     mu[i] <- c * temp[i] * (temp[i] - Tmin) * sqrt((Tmax - temp[i]) * (Tmax > temp[i])) * (Tmin < temp[i])
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0, )
     }
     
     } # close model
@@ -561,7 +569,7 @@ cat("
     rmax ~ dunif(0, 1)
     alpha ~ dunif(0, 1)
     
-    beta ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
+    beta ~ dgamma(0.35^2 / 0.2^2, 0.35 / 0.2^2)
     sigma ~ dunif(0, 1)
     
     # Derived quantities
@@ -574,7 +582,7 @@ cat("
                           + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))
                           - log(Tmax - Tmin)) ) 
     
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0, )
     }
     
     } # close model
@@ -760,7 +768,7 @@ cat("
     ## Likelihood
     for(i in 1:N.obs){
     mu[i] <- m * (Tmax - temp[i]) 
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0,)
     }
     
     } # close model
@@ -776,7 +784,7 @@ cat("
     Tmax ~ dnorm(35, 1/5^2)
     rmax ~ dunif(0, 150)
     alpha ~ dunif(0, 1)
-    beta ~ dgamma(0.2^2 / 0.4^2, 0.2 / 0.4^2)
+    beta ~ dgamma(0.35^2 / 0.2^2, 0.35 / 0.2^2)
     sigma ~ dunif(0, 100)
     
     # Derived quantities
@@ -789,7 +797,7 @@ cat("
                           + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))
                           - log(Tmax - Tmin)) ) 
     
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0,)
     }
     
     } # close model
@@ -967,6 +975,7 @@ plot("", axes=FALSE, frame.plot=FALSE)
 text(0.5, 0.57, "Culex", cex=1.8)
 text(0.5, 0.43, "pipiens", cex=1.8)
 
+
 par(mar=(c(5, 4, 2, 2) + 0.1))
 plot("", axes=FALSE, frame.plot=FALSE)
 text(0.5, 0.57, "Culex", cex=1.8)
@@ -979,7 +988,7 @@ data.EV.Cpip$sderr <- sqrt(data.EV.Cpip$p.hatched * (1 - data.EV.Cpip$p.hatched)
 par(mar=(c(2, 4 + lof, 4, 2) + 0.1))
 
 plot(data.EV.Cpip$temperature, data.EV.Cpip$p.hatched, pch=20, xlim=c(0, 45),
-     ylim=c(0,1), xlab="", ylab="Proportion hatched", main="EV",
+     ylim=c(0,1), xlab="", ylab="Proportion hatched", main="Egg viability",
      axes=FALSE,
      frame.plot=TRUE,
      cex.lab=cex.lab, cex.axis=cex.axis, cex.main=cex.main)
@@ -1059,8 +1068,8 @@ polygon(c(temps, rev(temps)), c(CI.EV.Cqui.flex[1,], rev(CI.EV.Cqui.flex[2,])),
 par(mar=(c(2, 4 + lof, 4, 2) + 0.1))
 plot(data.pLA.Cpip$T, data.pLA.Cpip$trait, pch=20, xlim=c(0, 45),
      ylim=c(0,1), xlab="",
-     ylab="Larval survival proportion",
-     main="pLA",
+     ylab="Prop. surviving",
+     main="Larval survival",
      axes=FALSE,
      frame.plot=TRUE,
      cex.lab=cex.lab, cex.axis=cex.axis, cex.main=cex.main)
@@ -1093,7 +1102,7 @@ polygon(c(temps, rev(temps)), c(CI.pLA.Cpip.flex[1,], rev(CI.pLA.Cpip.flex[2,]))
 #### pLA - Culex quinquefasciatus
 par(mar=(c(5, 4 + lof, 2, 2) + 0.1))
 plot(data.pLA.Cqui$T, data.pLA.Cqui$trait, pch=20, xlim=c(0, 45),
-     ylim=c(0, 1), xlab="Temperature [°C]", ylab="Larval survival proportion", 
+     ylim=c(0, 1), xlab="Temperature [°C]", ylab="Prop. surviving", 
      main="", cex.lab=cex.lab, cex.axis=cex.axis, cex.main=cex.main)
 
 # Plot quadratic model curves
@@ -1196,7 +1205,7 @@ polygon(c(temps, rev(temps)), c(CI.MDR.Cqui.flex[1,], rev(CI.MDR.Cqui.flex[2,]))
 par(mar=(c(2, 4 + lof, 4, 2) + 0.1))
 plot(data.lf.Cpip.fem$T, data.lf.Cpip.fem$trait, pch=20, xlim=c(0, 45),
      ylim=c(0, 150), xlab="", ylab="Adult lifespan [days]", 
-     main="lf",
+     main="Lifespan",
      axes=FALSE,
      frame.plot=TRUE,
      cex.lab=cex.lab, cex.axis=cex.axis, cex.main=cex.main)
