@@ -340,7 +340,7 @@ cat("
     for(i in 1:N.obs){
     mu[i] <- min(c * (temp[i] - Tmin) * (Tmax - temp[i]) * (temp[i] < Tmax) * (Tmin < temp[i]),
     1)
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0, )
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)
     }
     
     } # close model
@@ -372,7 +372,7 @@ cat("
                           + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))
                           - log(Tmax - Tmin)) ) 
     
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0, )
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)
     }
     
     } # close model
@@ -552,7 +552,7 @@ cat("
     ## Likelihood
     for(i in 1:N.obs){
     mu[i] <- c * temp[i] * (temp[i] - Tmin) * sqrt((Tmax - temp[i]) * (Tmax > temp[i])) * (Tmin < temp[i])
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0, )
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)
     }
     
     } # close model
@@ -582,7 +582,7 @@ cat("
                           + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))
                           - log(Tmax - Tmin)) ) 
     
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0, )
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)
     }
     
     } # close model
@@ -768,7 +768,7 @@ cat("
     ## Likelihood
     for(i in 1:N.obs){
     mu[i] <- m * (Tmax - temp[i]) 
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0,)
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)
     }
     
     } # close model
@@ -797,7 +797,7 @@ cat("
                           + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))
                           - log(Tmax - Tmin)) ) 
     
-    y[i] ~ dnorm(mu[i], 1 / sigma^2)T(0,)
+    y[i] ~ dnorm(mu[i], 1 / sigma^2)
     }
     
     } # close model
