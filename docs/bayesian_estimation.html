@@ -157,7 +157,7 @@ window.Quarto = {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./fit_examples.html"> 
-<span class="menu-text">Tutorial</span></a>
+<span class="menu-text">Examples</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -181,7 +181,6 @@ window.Quarto = {
   </ul></li>
   <li><a href="#implementing-the-model" id="toc-implementing-the-model" class="nav-link" data-scroll-target="#implementing-the-model">Implementing the model</a>
   <ul class="collapse">
-  <li><a href="#the-posterior-distribution" id="toc-the-posterior-distribution" class="nav-link" data-scroll-target="#the-posterior-distribution">The posterior distribution</a></li>
   <li><a href="#bayesian-inference-with-mcmc-methods" id="toc-bayesian-inference-with-mcmc-methods" class="nav-link" data-scroll-target="#bayesian-inference-with-mcmc-methods">Bayesian inference with MCMC methods</a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
@@ -223,7 +222,7 @@ window.Quarto = {
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(result)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>In this example, we will fit data on the lifespan of <em>Culex tarsalis</em> mosquitoes with Bayesian methods. Bayesian approaches make it possible to use external information in the form of prior distributions to inform parameter estimates.</p>
+<p>In this example, we will fit flexTPC to lifespan data from <em>Culex tarsalis</em> mosquitoes with Bayesian methods. Bayesian approaches make it possible to use external information in the form of prior distributions to inform parameter estimates.</p>
 <p>As before, let’s start by plotting the data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>lf.data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">'./mosquito_traits/TraitData_lf.csv'</span>)</span>
@@ -244,24 +243,30 @@ window.Quarto = {
 </div>
 <p>We can see a few things from this plot:</p>
 <ul>
-<li><p>Lifespan increases at lower temperatures throughout the measured range. However, this cannot continue indefinitely, as eventually temperatures will be too low for the mosquitoes to survive. The lowest temperature that mosquitoes can survive is unlikely to be much lower than 0°C (the freezing point of water). Thus, the thermal performance curves for lifespan are likely left-skewed.</p></li>
+<li><p>Lifespan increases at lower temperatures throughout the measured range. However, this cannot continue indefinitely, as eventually temperatures will be too low for the mosquitoes to survive. The lowest temperature that mosquitoes can survive is unlikely to be much lower than 0 °C (the freezing point of water). Thus, the thermal performance curves for the lifespan of this mosquito are likely left-skewed.</p></li>
 <li><p>It looks like the variability in the data is not constant throughout. Rather, there is greater variability in the measurements at temperatures where lifespan is higher. In this tutorial, we will show how this can be accounted for with a model for the variance.</p></li>
 </ul>
 <section id="a-bayesian-statistical-model" class="level1">
 <h1>A Bayesian statistical model</h1>
 <p>As before, we also need to define the <em>likelihood</em> of our model. In this example we will use the model</p>
-<p><span class="math display">\[y_i | T_i, \mathcal{P}, \sigma \sim \mathrm{Gamma}(\mu=r(T_i;P), \sigma)\]</span> where <span class="math inline">\(y_i\)</span> is the ith observed data point, <span class="math inline">\(T_i\)</span> the temperature corresponding to this data point, and <span class="math inline">\(r(T_i;P)\)</span> is the flexTPC equation with parameters <span class="math inline">\(\mathcal{P}=\{T_\min, T_\max, r_\max, \alpha, \beta \}\)</span>. In this case we have no data with zero values, so we will simplify the model and not consider this an additional case (as we did in the MLE example).</p>
-<p>As before, to account for the standard deviation <span class="math inline">\(\sigma\)</span> varying with temperature, we have the following model:</p>
-<p><span class="math display">\[\ln \sigma = \eta_0+\eta_1 r(T_i; P)\]</span> which we can rewrite as</p>
-<p><span class="math display">\[\sigma = \sigma_0e^{\eta_1 r(T;P)}\]</span> where we can define <span class="math inline">\(\sigma_0=e^{\eta_0}\)</span>.</p>
+<p><span class="math display">\[y_i | T_i, \mathcal{P}, \sigma \sim \mathrm{Gamma}(\mu=r(T_i;P), \sigma)\]</span> where <span class="math inline">\(y_i\)</span> is the ith observed data point, <span class="math inline">\(T_i\)</span> the temperature corresponding to this data point, and <span class="math inline">\(r(T_i;P)\)</span> is the flexTPC equation with parameters <span class="math inline">\(\mathcal{P}=\{T_\min, T_\max, r_\max, \alpha, \beta \}\)</span>. In this case we have no data with zero values, so we will simplify the model and not consider this as an additional case (as we did in the MLE example).</p>
+<p>As before, we will account for the standard deviation <span class="math inline">\(\sigma\)</span> varying with temperature with the following model:</p>
+<p><span class="math display">\[\ln \sigma = \eta_0 + \eta_1 r(T_i; P)\]</span> which we can rewrite as</p>
+<p><span class="math display">\[\sigma = \sigma_0e^{\eta_1 r(T;P)}\]</span> where we can define <span class="math inline">\(\sigma_0=e^{\eta_0}\)</span>. We will therefore consider <span class="math inline">\(\eta_0\)</span> and <span class="math inline">\(\eta_1\)</span> as two additional model parameters that determine the standard deviation.</p>
 <section id="prior-distributions" class="level2">
 <h2 class="anchored" data-anchor-id="prior-distributions">Prior distributions</h2>
 <p>In Bayesian statistics, we represent parameter uncertainty with probability distributions. Rather than considering what happens under hypothetical repeated experiments, we are concerned with estimating the probability that the model parameters have different values.</p>
 <p>A Bayesian analysis starts by choosing a <em>prior distribution</em> for every model parameter that represents the initial uncertainty in these parameters (before seeing any data). In the analysis these prior distributions are updated to a posterior distribution that represents the remaining uncertainty in the analysis after considering which parameter values are compatible with the data (through the likelihood).</p>
-<p>For the rationale of choosing the priors of this model, please check Appendix S1 of the manuscript. We also give general advice on how to choose prior distributions for the flexTPC model in <a href="priors.html">a separate page</a>.</p>
-<p><span class="math display">\[T_\min \sim \mathrm{Normal}(\mu=5\mathrm{°C}, \sigma=2.5\mathrm{°C})\]</span> <span class="math display">\[T_\max \sim \mathrm{Normal}(\mu=35\mathrm{°C}, \sigma=5\mathrm{°C})\]</span> <span class="math display">\[r_\max \sim \mathrm{Uniform}(0, 150)\]</span> <span class="math display">\[\alpha \sim \mathrm{Uniform}(0, 1)\]</span> <span class="math display">\[ \beta \sim \mathrm{Gamma}(\mu=0.35, \sigma=0.2) \]</span> We also need to choose priors for the parameters that relate to the statistical model. We will choose the following noninformative priors:</p>
+<p>We also give general advice on how to choose prior distributions for the flexTPC model in <a href="priors.html">a separate page</a>. For this analysis, we will fit a model with the following priors:</p>
+<p>For the minimum and maximum temperatures, we will use informative priors that make biologically conservative assumptions about the extreme temperatures for mosquito survival. Mainly, we to encode the assumption that the minimum temperature is (approximately() 95% likely to be in the interval <span class="math inline">\([0 °C, 10 °C]\)</span> and the maximum temperature is approximately 95% likely to be in the interval <span class="math inline">\([25 °C, 45 °C]\)</span> <em>a priori</em>.</p>
+<p><span class="math display">\[T_\min \sim \mathrm{Normal}(\mu=5\mathrm{°C}, \sigma=2.5\mathrm{°C})\]</span></p>
+<p><span class="math display">\[T_\max \sim \mathrm{Normal}(\mu=35\mathrm{°C}, \sigma=5\mathrm{°C})\]</span> From data from other <em>Culex</em> mosquitoes (see manuscript), we know that the maximum lifespan of mosquitoes of this genus is very likely less than 150 days. We can set a flat prior for the maximum lifespan by taking</p>
+<p><span class="math display">\[r_\max \sim \mathrm{Uniform}(0, 150)\]</span> We will assume any curve assymmetry is equally likely by using a flat prior for <span class="math inline">\(\alpha\)</span>. This essentially assumes that <span class="math inline">\(T_\mathrm{opt}\)</span> is equally likely to be at any point in-between <span class="math inline">\(T_{\min}\)</span> and <span class="math inline">\(T_{\max}\)</span>.</p>
+<p><span class="math display">\[\alpha \sim \mathrm{Uniform}(0, 1)\]</span> Lastly, we will use a weakly informative prior for <span class="math inline">\(\beta\)</span> which will prefer curves where the thermal breadth to tolerance ratio is close to that of common models like the quadriatic or Briere models. This can be accomplished with the following prior:</p>
+<p><span class="math display">\[ \beta \sim \mathrm{Gamma}(\mu=0.35, \sigma=0.2) \]</span></p>
+<p>We also need to choose priors for the parameters that determine the standard deviation. We will choose the following noninformative priors:</p>
 <p><span class="math display">\[\sigma_0 \sim \mathrm{Uniform}(0, 100)\]</span></p>
-<p><span class="math display">\[\eta_1 \sim \mathrm{Normal}(\mu=0, \sigma=1)\]</span></p>
+<p><span class="math display">\[\eta_1 \sim \mathrm{Normal}(\mu=0, \sigma=0.1)\]</span></p>
 </section>
 </section>
 <section id="implementing-the-model" class="level1">
@@ -274,48 +279,50 @@ window.Quarto = {
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">'scales'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The main R package we’ll be using is <span class="math inline">\(\texttt{R2jags}\)</span>. This package lets us run a program that implements Bayesian inference called JAGS (Just Another Gibbs Sampler) from R.</p>
-<p>The first step to implement our model is to write it in a form that can be understood by JAGS. We can do this within R with the <span class="math inline">\(\texttt{cat}\)</span> function, which can save its output to a text file. This text file will then be read by JAGS.</p>
-<p>JAGS has its own probabilistic programming language which looks very similar to how we defined the model earlier. A file that implements our model is shown below:</p>
+<p>The first step to implement our model is to write it in a form that can be understood by JAGS. We can do this within R with the <span class="math inline">\(\texttt{cat}\)</span> function, which can save its output to a text file. This text file will then be read by JAGS, which is an external program that does the Bayesian parameter estimation.</p>
+<p>JAGS has its own probabilistic programming language which looks very similar to the notation we used to define the model earlier. The operator <span class="math inline">\(\texttt{~}\)</span> can be interpreted as meaning “is distributed as”. There can also be deterministic transformations of parameters in JAGS which are called “derived quantities” (for example, to calculate the optimal temperature from the other model parameters). We can calculate any such quantities and estimate them (and calculate credible intervals).</p>
+<p>A file that implements the model described above in the JAGS language is shown here:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">    model{</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="st">    ## Prior distributions.</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">    Tmin ~ dnorm(5, 1/2.5^2) # Note that the sd is input as the precision.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="st">    ## Prior distributions for flexTPC parameters.</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">    Tmin ~ dnorm(5, 1/2.5^2) # Note that we need to convert the standard deviation to a precision.</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="st">    Tmax ~ dnorm(35, 1/5^2)</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="st">    rmax ~ dunif(0, 150)</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="st">    alpha ~ dunif(0, 1)</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="st">    beta ~ dgamma(0.35^2 / 0.2^2, 0.35 / 0.2^2)</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="st">    sigma0 ~ dexp(1 / 50)</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="st">    eta1 ~ dnorm(0, 1 / 0.1^2)</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="st">    # Derived quantities</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="st">    s &lt;- alpha * (1 - alpha) / beta^2</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="st">    Topt &lt;- alpha * Tmax + (1 - alpha) * Tmin</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="st">    B &lt;- beta * (Tmax - Tmin)</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="st">    ## Likelihood</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="st">    # For each observation i.</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="st">    for(i in 1:N.obs){</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="st">      # Mean is flexTPC model at temperature of observation.</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="st">      mu[i] &lt;- (Tmax &gt; temp[i]) * (Tmin &lt; temp[i]) * rmax * exp(s * (alpha * log( max(temp[i] - Tmin, 10^-20) / alpha) </span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="st">                          + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="st">                          - log(Tmax - Tmin)) ) </span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="st">                          </span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="st">      # Standard deviation varies with performance according to our model.</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="st">      sigma[i] &lt;- sigma0 * exp(eta1 * mu[i])</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="st">      </span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="st">      # Defines how our observations are distributed.</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="st">      y[i] ~ dgamma(mu[i]^2 / sigma[i]^2, mu[i] / sigma[i]^2)</span></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="st">      </span></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="st">      ## This would define a normal model instead.</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="st">      ## y[i] ~ dnorm(mu[i], 1 / sigma[i]^2)</span></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="st">    } # close model</span></span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="st">    "</span>,<span class="at">fill=</span><span class="cn">TRUE</span>, <span class="at">file=</span><span class="st">"lifespan.txt"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="st">    ## Prior distributions for the model for the variance.</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="st">    sigma0 ~ dunif(0, 100)</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="st">    eta1 ~ dnorm(0, 1 / 0.1^2)</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="st">    # Derived quantities</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="st">    s &lt;- alpha * (1 - alpha) / beta^2</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="st">    Topt &lt;- alpha * Tmax + (1 - alpha) * Tmin</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="st">    B &lt;- beta * (Tmax - Tmin)</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="st">    ## Likelihood</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="st">    # For each observation i.</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="st">    for(i in 1:N.obs){</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="st">      # Mean is flexTPC model at temperature of observation.</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="st">      mu[i] &lt;- (Tmax &gt; temp[i]) * (Tmin &lt; temp[i]) * rmax * exp(s * (alpha * log( max(temp[i] - Tmin, 10^-20) / alpha) </span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="st">                          + (1 - alpha) * log( max(Tmax - temp[i], 10^-20) / (1 - alpha))</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="st">                          - log(Tmax - Tmin)) ) </span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="st">                          </span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="st">      # Standard deviation varies with performance according to our model.</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="st">      sigma[i] &lt;- sigma0 * exp(eta1 * mu[i])</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="st">      </span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="st">      # Defines how our observations are distributed (Gamma distribution).</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="st">      y[i] ~ dgamma(mu[i]^2 / sigma[i]^2, mu[i] / sigma[i]^2)</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="st">      </span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="st">      ## This would define a normal model instead.</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="st">      ## y[i] ~ dnorm(mu[i], 1 / sigma[i]^2)</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="st">    } # close model</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="st">    "</span>,<span class="at">fill=</span><span class="cn">TRUE</span>, <span class="at">file=</span><span class="st">"lifespan.txt"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>There are a few things we need to be aware of when writing a model into JAGS:</p>
 <ul>
@@ -324,23 +331,18 @@ window.Quarto = {
 <li><p>We can define any quantity that is a deterministic function of the model parameters in JAGS. This allows us to easily get credible intervals from these quantities. We do this in the derived quantities section to calculate <span class="math inline">\(T_\mathrm{opt}\)</span> and <span class="math inline">\(B\)</span>.</p></li>
 <li><p>The likelihood for each observation <span class="math inline">\(y_i\)</span> inside a for loop. In this loop we iterate over all observations and calculate what the mean and standard deviation of the Gamma distribution should be according to our model.</p></li>
 </ul>
-<section id="the-posterior-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="the-posterior-distribution">The posterior distribution</h2>
-<p>The main goal in a Bayesian analysis is to obtain the posterior distribution of the parameters. This corresponds to the remaining uncertainty in the parameters after seeing the data. The prior distribution and the likelihood are combined to obtain the posterior distribution with Bayes’s Theorem:</p>
-<p><span class="math display">\[p(\theta | y) = \frac{p(y|\theta) p(\theta)}{p(y)} \]</span></p>
-<p><span class="math display">\[\mathrm{posterior} \propto \mathrm{prior} \times \mathrm{likelihood} \]</span></p>
-</section>
 <section id="bayesian-inference-with-mcmc-methods" class="level2">
 <h2 class="anchored" data-anchor-id="bayesian-inference-with-mcmc-methods">Bayesian inference with MCMC methods</h2>
-<p>Now that we’ve written down our model (priors and likelihood) in the JAGS language, we can proceed to running the analysis. JAGS implements a Gibbs sampler, which is a form of Markov Chain Monte Carlo (MCMC), an algorithm that allows us to get samples from the posterior distribution of a Bayesian statistical model. Explaining how MCMC methods work in detail is beyond the scope of this tutorial. However, we provide a simplified explanation here to aid understanding of the process of fitting a Bayesian model (and to better understand the code below):</p>
+<p>The inputs in a Bayesian analysis are the prior distributions (which encode the previous knowledge we have about the model parameters before seeing the data) and the likelihood (calculated from the data). to obtain the posterior distribution of the parameters, which corresponds to the remaining uncertainty in the parameters after seeing the data. A Bayesian analysis combines the prior distributions and the likelihood in order to obtain the posterior distribution, which represents the uncertainty in the parameters after seeing the data.</p>
+<p>Now that we’ve written down our model (priors and likelihood) in the JAGS language, we can proceed to running the analysis. JAGS implements a Gibbs sampler, which is a form of Markov Chain Monte Carlo (MCMC), an algorithm that allows us to sample from the posterior distribution of a Bayesian statistical model. Explaining how MCMC methods work in detail is beyond the scope of this tutorial. However, we provide a simplified explanation here to aid understanding of the process of fitting a Bayesian model (and to better understand the code below):</p>
 <ol type="1">
-<li>We start with initial guesses for the model parameters. This is considered the first value of the MCMC chain.</li>
+<li>We start with initial guesses for the model parameters. This is considered the first value of an MCMC chain.</li>
 <li>The Gibbs sampling algorithm then decides a random new value for the model parameters based on their current value, the model likelihood and the priors. This algorithm is cleverly set up so that in the long run, the distribution of parameters of the chain will correspond to draws from the posterior distribution of our model.</li>
-<li>We run the Gibbs sampling algorithm iteratively with the updated values, saving the values the parameters take at each iteration. Eventually, if we run the chain long enough, the MCMC chain will converge to its equilibrium distribution (which corresponds to the posterior distribution).</li>
-<li>After convergence, we the samples from the MCMC chain are samples from the posterior distribution of our model. We can use these samples to calculate summaries of this distribution (like means and credible intervals for the individual parameters).</li>
+<li>We run the Gibbs sampling algorithm iteratively with the updated values, saving the values the parameters take at each iteration. Eventually, if we run the chain long enough, the MCMC chain will converge to its equilibrium distribution (which corresponds to the multivariate posterior distribution of our model parameters).</li>
+<li>After convergence, the samples from the MCMC chain are samples from the posterior distribution of our model. We can use these samples to calculate summaries of this distribution (like means and credible intervals for the individual parameters, or means and CIs for the value of the curve at each temperature).</li>
 </ol>
 <p>MCMC is only guaranteed to sample from the posterior distribution in the long run. Because of this, it is important to a) run the chains for a large number of iterations, and b) check for signs that the chains may not have yet converged, as in that case we cannot trust the results.</p>
-<p>It is usually a good idea to run multiple MCMC chains with different starting values. Once the chains have converged, they should be drawing samples from the same distribution (the posterior). We can examine plots of the multiple MCMC chains to see if they look similar as an informal check if they converged. We can also check some convergence criteria that are based on statistical comparisons of the variability between and within chains.</p>
+<p>It is usually a good idea to run multiple MCMC chains with different starting values. Once the chains have converged, they should be drawing samples from the same distribution (the posterior). We can examine plots of the multiple MCMC chains to see if they look similar as an informal check for convergence. We can also check some convergence criteria that are based on statistical comparisons of the variability between and within chains.</p>
 <p>In this example, we will run four independent MCMC chains. We will choose the initial values of the MCMC chains by drawing these values randomly (but within specified ranges). In this example, we will run the chains for 500000 iterations. We often want to discard some of the initial iterations (a burn-in period), since it is likely that the chains have not yet converged in early iterations We will save only one out of every eight iterations to save some memory. Optionally, we can discard some of the iterations to save some memory.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set random seed for reproducibility.</span></span>
@@ -603,11 +605,11 @@ DIC is an estimate of expected predictive error (lower deviance is better).</cod
 <span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(beta, <span class="fu">dgamma</span>(beta, <span class="at">shape=</span><span class="fl">0.35</span><span class="sc">^</span><span class="dv">2</span><span class="sc">/</span><span class="fl">0.2</span><span class="sc">^</span><span class="dv">2</span>, <span class="at">rate=</span><span class="fl">0.35</span><span class="sc">/</span><span class="fl">0.2</span><span class="sc">^</span><span class="dv">2</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
 <span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a><span class="co"># sigma0</span></span>
-<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a>sigma0 <span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="fl">0.01</span>)</span>
+<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a>sigma0 <span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="fl">0.01</span>)</span>
 <span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(<span class="fu">MCMCchains</span>(jags.out, <span class="at">params=</span><span class="fu">c</span>(<span class="st">"sigma0"</span>))), <span class="at">lwd=</span><span class="dv">2</span>,</span>
 <span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span>posterior.col, <span class="at">type=</span><span class="st">'l'</span>, <span class="at">main=</span><span class="st">'sigma0'</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">50</span>),</span>
 <span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab=</span><span class="st">'sigma0 [days]'</span>, <span class="at">ylab=</span><span class="st">'prob. density'</span>)</span>
-<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(sigma0, <span class="fu">dexp</span>(sigma0, <span class="dv">1</span><span class="sc">/</span><span class="dv">50</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(sigma0, <span class="fu">dunif</span>(sigma0, <span class="dv">0</span>, <span class="dv">100</span>), <span class="at">lwd=</span><span class="dv">2</span>)</span>
 <span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a><span class="co">#eta 1</span></span>
 <span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>eta1 <span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.01</span>)</span>
@@ -630,6 +632,8 @@ DIC is an estimate of expected predictive error (lower deviance is better).</cod
 </section>
 <section id="references" class="level1">
 <h1>References</h1>
+<p>The data in this example is taken from</p>
+<p>Shocket, M. S., Verwillow, A. B., Numazu, M. G., Slamani, H., Cohen, J. M., El Moustaid, F., Rohr, J., Johnson, L. R., &amp; Mordecai, E. A. (2020). Transmission of West Nile and five other temperate mosquito-borne viruses peaks at temperatures between 23°C and 26°C. eLife, 9. https://doi.org/10.7554/elife.58511</p>
 <p>For more about Bayesian statistics, please see:</p>
 <p>Kruschke. 2015. Doing Bayesian Data Analysis. A Tutorial with R, JAGS, and Stan.</p>
 <p>Gelman et al.&nbsp;2013. Bayesian Data Analysis.</p>

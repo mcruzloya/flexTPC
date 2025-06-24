@@ -159,7 +159,7 @@ window.Quarto = {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./fit_examples.html"> 
-<span class="menu-text">Tutorial</span></a>
+<span class="menu-text">Examples</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -177,7 +177,7 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#r-code" id="toc-r-code" class="nav-link active" data-scroll-target="#r-code">R code</a></li>
+  <li><a href="#code-examples" id="toc-code-examples" class="nav-link active" data-scroll-target="#code-examples">Code examples</a></li>
   <li><a href="#reference" id="toc-reference" class="nav-link" data-scroll-target="#reference">Reference</a></li>
   </ul>
 </nav>
@@ -373,30 +373,9 @@ T_{\mathrm{opt}} = \alpha T_{\max} + (1 - \alpha) T_{\min}
 \]</span> (where, for example, <span class="math inline">\(\alpha = 0\)</span> corresponds to <span class="math inline">\(T_{\mathrm{opt}} = T_{\min}\)</span>, <span class="math inline">\(\alpha = 1\)</span> corresponds to <span class="math inline">\(T_{\mathrm{opt}} = T_{\max}\)</span> and <span class="math inline">\(\alpha = 1/2\)</span> corresponds to a symmetric TPC where <span class="math inline">\(T_{\mathrm{opt}} = (T_{\min} + T_{\max}) / 2\)</span>), and</li>
 <li><span class="math inline">\(\beta &gt; 0\)</span> determines the breadth of the TPC near its peak.</li>
 </ul>
-<section id="r-code" class="level2">
-<h2 class="anchored" data-anchor-id="r-code">R code</h2>
-<p>For convenience, we provide R functions that implement the flexTPC model below:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># FlexTPC model for thermal performance curves.</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (parametrized with alpha/beta)</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>flexTPC <span class="ot">&lt;-</span> <span class="cf">function</span>(temp, Tmin, Tmax, rmax, alpha, beta) {</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> alpha <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">/</span> beta<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(temp))</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  Tidx <span class="ot">=</span> (temp <span class="sc">&gt;</span> Tmin) <span class="sc">&amp;</span> (temp <span class="sc">&lt;</span> Tmax)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  result[Tidx] <span class="ot">&lt;-</span> rmax <span class="sc">*</span> <span class="fu">exp</span>(s <span class="sc">*</span> (alpha <span class="sc">*</span> <span class="fu">log</span>( (temp[Tidx] <span class="sc">-</span> Tmin) <span class="sc">/</span> alpha) </span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> alpha) <span class="sc">*</span> <span class="fu">log</span>( (Tmax <span class="sc">-</span> temp[Tidx]) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> alpha)) </span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span> <span class="fu">log</span>(Tmax <span class="sc">-</span> Tmin)) ) </span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(result)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># FlexTPC model for thermal performance curves.</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># (parametrized with Topt/B)</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>flexTPC2 <span class="ot">&lt;-</span> <span class="cf">function</span>(temp, Tmin, Tmax, rmax, Topt, B) {</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> (Topt <span class="sc">-</span> Tmin) <span class="sc">/</span> (Tmax <span class="sc">-</span> Tmin)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> B <span class="sc">/</span> (Tmax <span class="sc">-</span> Tmin)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">flexTPC</span>(temp, Tmin, Tmax, rmax, alpha, beta))</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<section id="code-examples" class="level2">
+<h2 class="anchored" data-anchor-id="code-examples">Code examples</h2>
+<p>We also provide <a href="fit_examples.html">example code</a> that shows how to fit flexTPC with various methodologies.</p>
 </section>
 <section id="reference" class="level2">
 <h2 class="anchored" data-anchor-id="reference">Reference</h2>

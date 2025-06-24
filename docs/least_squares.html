@@ -157,7 +157,7 @@ window.Quarto = {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./fit_examples.html"> 
-<span class="menu-text">Tutorial</span></a>
+<span class="menu-text">Examples</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -298,7 +298,7 @@ window.Quarto = {
 11.0733505 35.1772202  2.8645324  0.6543052  0.3870970 </code></pre>
 </div>
 </div>
-<p>Let’s plot the data along with the initial parameters (in gray) and the fitted curves (in blue).</p>
+<p>Let’s plot the data along with the initial parameters (in gray) and the fitted flexTPC curve (in blue).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">45</span>, <span class="fl">0.1</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -320,7 +320,7 @@ window.Quarto = {
 </div>
 <section id="finding-the-optimal-temperature-and-approximate-thermal-breadth" class="level2">
 <h2 class="anchored" data-anchor-id="finding-the-optimal-temperature-and-approximate-thermal-breadth">Finding the optimal temperature and approximate thermal breadth</h2>
-<p>In the flexTPC model the optimum temperature <span class="math inline">\(T_\mathrm{opt}\)</span> can be calculated with the following equation:</p>
+<p>The optimum temperature <span class="math inline">\(T_\mathrm{opt}\)</span> of a flexTPC curve can be calculated with the following equation:</p>
 <p><span class="math display">\[T_{\mathrm{opt}} = \alpha T_\max + (1- \alpha) T_\min\]</span> and the approximate thermal breadth <span class="math inline">\(B\)</span> at 88% of the maximum performance with the equation <span class="math display">\[ B = \beta (T_\max - T_\min)\]</span> We can use these equations to find the least square estimates for <span class="math inline">\(T_\mathrm{opt}\)</span> and <span class="math inline">\(B\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Topt <span class="ot">&lt;-</span> fit<span class="sc">$</span>par[<span class="st">'alpha'</span>] <span class="sc">*</span> fit<span class="sc">$</span>par[<span class="st">'Tmax'</span>] <span class="sc">+</span> (<span class="fl">1.0</span> <span class="sc">-</span> fit<span class="sc">$</span>par[<span class="st">'alpha'</span>]) <span class="sc">*</span> fit<span class="sc">$</span>par[<span class="st">'Tmin'</span>]</span>
@@ -486,8 +486,6 @@ Thm1  13.6793069 18.6691363
 Thm2  32.8693103 35.5887098</code></pre>
 </div>
 </div>
-<p>This approach helps us quantify the uncertainty of our estimates. However, in a typical TPC dataset we have don’t have too measurements near the extremes, which will get removed from the boostrap samples, potentially resulting on wild estimates for the minimum and maximum temperatures. Because of this, a nonparametric boostrap can sometimes give very wide confidence intervals for the endpoint temperatures.</p>
-<p>An arguably more realistic way to resample our data is to keep the same experimental design (e.g.&nbsp;same temperatures as measured in the experimental data), but simulate getting different values. To do this, it helps to have an explicit model of how our data is generated. In the next section, we show how this can be done with maximum likelihood estimation.</p>
 </section>
 <section id="references" class="level1">
 <h1>References</h1>

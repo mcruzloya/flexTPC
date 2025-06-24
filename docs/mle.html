@@ -157,7 +157,7 @@ window.Quarto = {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./fit_examples.html"> 
-<span class="menu-text">Tutorial</span></a>
+<span class="menu-text">Examples</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -179,7 +179,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#extending-a-deterministic-tpc-model-to-a-statistical-model" id="toc-extending-a-deterministic-tpc-model-to-a-statistical-model" class="nav-link" data-scroll-target="#extending-a-deterministic-tpc-model-to-a-statistical-model">Extending a deterministic TPC model to a statistical model</a></li>
   </ul></li>
-  <li><a href="#confidence-intervals" id="toc-confidence-intervals" class="nav-link" data-scroll-target="#confidence-intervals">Confidence intervals</a></li>
+  <li><a href="#confidence-intervals-with-the-parametric-bootstrap" id="toc-confidence-intervals-with-the-parametric-bootstrap" class="nav-link" data-scroll-target="#confidence-intervals-with-the-parametric-bootstrap">Confidence intervals with the parametric bootstrap</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
@@ -206,7 +206,7 @@ window.Quarto = {
 </header>
 
 
-<p>In this example, we’ll fit flexTPC to data on the population growth of the marine cyanobacteria <em>Trichodesmium erythraeum</em> with a maximum likelihood approach. This example shows how to deal with data where the variance varies with trait performance, and how to assume a different probability distribution than the normal distribution.</p>
+<p>In this example, we’ll fit flexTPC to data on the population growth of the marine cyanobacteria <em>Trichodesmium erythraeum</em> with a maximum likelihood approach. This example shows how to deal with data where the variance varies with trait performance, and how to assume a different probability distribution than the normal distribution for our observations.</p>
 <p>Let’s plot the data!</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">'TPC_data_examples.csv'</span>)</span>
@@ -231,9 +231,9 @@ window.Quarto = {
 <li><p>A “stochastic part” that describes a plausible mechanism of generating the observed data points from the model (or, in other words, a model of the errors). This is usually done by assuming <span class="math inline">\(r(T)\)</span> to be the mean (or some other location parameter, like the median or mode) of a probability distribution that generates the data points.</p></li>
 </ul>
 <p>Previously, we showed how to fit flexTPC with least squares estimation. In least squares estimation, we do not model the second part explicitly. Rather, we assume that the “best curve” is the one that minimizes the square difference of the curves and the data points.</p>
-<p>However, it turns out that least squares estimation is equivalent to maximum likelihood estimation under the assumption that the errors are normally distributed with a constant variance. These assumptions may not be ideal for thermal performance data because of various reasons:</p>
+<p>However, it turns out that least squares estimation is equivalent to maximum likelihood estimation with the assumption that the errors are normally distributed with a constant variance. These assumptions may not be ideal for thermal performance data because of various reasons:</p>
 <ol type="a">
-<li><p>Biological traits that are modeled by TPCs are often non-negative. Because of this, they are arguably better modeled by something other than a normal distribution (e.g.&nbsp;a Gamma or log-normal distribution).</p></li>
+<li><p>Biological traits that are modeled by TPCs are often non-negative. Because of this, it may be better to model them with something other than a normal distribution (e.g.&nbsp;a Gamma or log-normal distribution).</p></li>
 <li><p>The model residuals may not have a constant variance. Particularly, there is often greater variability in measurements when the trait performance is high than when it is low.</p></li>
 </ol>
 <p>We can see that both of these things are true in the data!</p>
@@ -301,7 +301,7 @@ window.Quarto = {
 <span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(f) </span>
 <span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Let’s now fit the model to the data.</p>
+<p>Let’s now find our maximum likelihood estimate (MLE) of the model parameters by minimizing the negative log-likelihood.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>init.par <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">16.5</span>, <span class="dv">34</span>, <span class="fl">3.2</span>, <span class="fl">0.7</span>, <span class="fl">0.3</span>, <span class="fu">log</span>(<span class="fl">0.5</span>), <span class="dv">0</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(init.par) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Tmin"</span>, <span class="st">"Tmax"</span>, <span class="st">"rmax"</span>, <span class="st">"alpha"</span>, <span class="st">"beta"</span>, <span class="st">"eta0"</span>, <span class="st">"eta1"</span>)</span>
@@ -342,7 +342,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>As before, we can calculate the optimal temperature, approximate thermal breadth at 88% and half-maximum temperatures.</p>
+<p>As before, we can calculate the optimal temperature, approximate thermal breadth at 88% and half-maximum temperatures from our parameter estimates.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Topt <span class="ot">&lt;-</span> fit<span class="sc">$</span>par[<span class="st">'alpha'</span>] <span class="sc">*</span> fit<span class="sc">$</span>par[<span class="st">'Tmax'</span>] <span class="sc">+</span> (<span class="fl">1.0</span> <span class="sc">-</span> fit<span class="sc">$</span>par[<span class="st">'alpha'</span>]) <span class="sc">*</span> fit<span class="sc">$</span>par[<span class="st">'Tmin'</span>]</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> fit<span class="sc">$</span>par[<span class="st">'beta'</span>] <span class="sc">*</span> (fit<span class="sc">$</span>par[<span class="st">'Tmax'</span>] <span class="sc">-</span> fit<span class="sc">$</span>par[<span class="st">'Tmin'</span>])</span>
@@ -369,25 +369,30 @@ window.Quarto = {
 </div>
 </section>
 </section>
-<section id="confidence-intervals" class="level1">
-<h1>Confidence intervals</h1>
-<p>As before, we could calculate confidence intervals with a nonparametric boostrap. However, having an explicit statistical model allows us to use a parametric bootstrap approach. This is more reliant in model assumptions, but is a better choice when there is limited data available.</p>
-<p>We start by writing a function that simulates data from our model.</p>
+<section id="confidence-intervals-with-the-parametric-bootstrap" class="level1">
+<h1>Confidence intervals with the parametric bootstrap</h1>
+<p>We could calculate confidence intervals here with a nonparametric boostrap, as done previously on the least squares example. However, having an explicit statistical model allows us to use a parametric bootstrap approach. This relies more in the model assumptions, but can be a better choice when the statistical model is a good description of the data and there is limited data available. A parametric boostrap approach also allows us to simulate data from repeated experiments measured at the same temperatures.</p>
+<p>Rather than resampling our data points to construct our boostrap samples, we will simulate new datasets from our fitted model. We will then repeat the procedure to find the best fitting parameters (estimating the parameters for each boostrap sample) and use the distribution of the fitted parameters to construct confidence intervals.</p>
+<p>We start by writing a function that simulates data from our model. We will assume the measured temperatures and the number of replicates (i.e.&nbsp;the experimental design) is the same as in the original data, but will draw the performance values randomly according to our fitted statistical model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>simulate_dataset <span class="ot">&lt;-</span> <span class="cf">function</span>(temperatures, Tmin, Tmax, rmax, alpha, beta, eta0, eta1) {</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(temperatures))</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  T.idx <span class="ot">&lt;-</span> (temperatures <span class="sc">&gt;</span> Tmin) <span class="sc">&amp;</span> (temperatures <span class="sc">&lt;</span> Tmax)</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Simulate growth rates.</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Find mean and sigma at temperatures from the dataset.</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">flexTPC</span>(temperatures[T.idx], Tmin, Tmax, rmax, alpha, beta)</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">&lt;-</span> <span class="fu">exp</span>(eta0 <span class="sc">+</span> eta1 <span class="sc">*</span> mu)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> mu<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> sigma<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> mu <span class="sc">/</span> sigma<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  y[T.idx] <span class="ot">&lt;-</span> <span class="fu">rgamma</span>(<span class="fu">length</span>(temperatures[T.idx]), <span class="at">shape=</span>a, <span class="at">rate=</span>b)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(y)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Transform mu and sigma to a, b parameters of Gamma distribution.</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> mu<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> sigma<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> mu <span class="sc">/</span> sigma<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw random value from Gamma distribution assumed by our model.</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  y[T.idx] <span class="ot">&lt;-</span> <span class="fu">rgamma</span>(<span class="fu">length</span>(temperatures[T.idx]), <span class="at">shape=</span>a, <span class="at">rate=</span>b)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(y)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Let’s plot a few simulated datasets with our model parameters.</p>
+<p>As a parametric bootstrap assumes the statistical model is a good description of the data, it is a good idea to check for discrepancies between the real data and data simulated by the model. To do this, let’s plot a few simulated datasets, assuming the true model parameters are given by the MLE. If the statistical model is a good description of the data, these simulated datasets should look similar to the true data (ideally, our true data should look like it could have plausibly come from the simulations). If this is not the case, we may need to reexamine our model assumptions.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>))</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -413,6 +418,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
+<p>It looks like our variable variance model is generating datasets that look similar to the true data! So we can go ahead and generate a large number of boostrap samples and calculate our confidence intervals.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Performs a parametric boostrap to get confidence intervals of model</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="do">## parameters.</span></span>
@@ -438,7 +444,7 @@ window.Quarto = {
 <span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>upper.bounds <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">10</span>, <span class="fl">0.9</span>, <span class="fl">0.7</span>, <span class="dv">10</span>, <span class="dv">10</span>)</span>
 <span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sample observations with replacement</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulate new dataset from the model.</span></span>
 <span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    y.sample <span class="ot">&lt;-</span> <span class="fu">simulate_dataset</span>(temp, fit<span class="sc">$</span>par[<span class="st">'Tmin'</span>], fit<span class="sc">$</span>par[<span class="st">'Tmax'</span>], </span>
 <span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>                                 fit<span class="sc">$</span>par[<span class="st">'rmax'</span>], fit<span class="sc">$</span>par[<span class="st">'alpha'</span>],</span>
 <span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>                                 fit<span class="sc">$</span>par[<span class="st">'beta'</span>], fit<span class="sc">$</span>par[<span class="st">'eta0'</span>],</span>
