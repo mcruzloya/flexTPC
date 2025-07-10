@@ -245,7 +245,7 @@ window.Quarto = {
 0 &amp; \text{otherwise}
 \end{cases}
 \]</span></p>
-<p>Here, we use the notation <span class="math inline">\(r(T_{i};\mathcal{P}),\sigma)\)</span> to represent the flexTPC model equation at temperature <span class="math inline">\(T_i\)</span> with parameters <span class="math inline">\(\mathcal{P}=\{T_{\min}, T_{\max},r_{\max},\alpha,\beta\}\)</span>.</p>
+<p>Here, we use the notation <span class="math inline">\(r(T_{i};\mathcal{P})\)</span> to represent the flexTPC model equation at temperature <span class="math inline">\(T_i\)</span> with parameters <span class="math inline">\(\mathcal{P}=\{T_{\min}, T_{\max},r_{\max},\alpha,\beta\}\)</span>.</p>
 <p>We could stop here and assume that the standard deviation <span class="math inline">\(\sigma\)</span> is constant. However, we can also account for variation in the standard deviation with trait performance. Many approaches are possible, but here we will do this with the following model:</p>
 <p><span class="math display">\[\ln\sigma  = \eta_0 + \eta_1 r(T_{i};\mathcal{P}) \]</span> This is a linear model for the natural logarithm of the standard deviation. The log-transform ensures that we always have a positive standard deviation, since</p>
 <p><span class="math display">\[\sigma = e^{\eta_0 +\eta_{1}r(T_i;\mathcal{P})}\]</span>.</p>
